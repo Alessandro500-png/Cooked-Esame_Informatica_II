@@ -17,7 +17,7 @@ This project loads recipes from the Spoonacular API using a local environment ke
    VITE_SPOONACULAR_KEY=la_tua_chiave_spoonacular
    ```
 
-4. Start the app:
+4. Install dependencies and start the app:
 
    ```bash
    npm install
@@ -31,8 +31,3 @@ This project loads recipes from the Spoonacular API using a local environment ke
 - Each person should use their own Spoonacular key.
 - Do not commit `.env` to GitHub.
 - `.env` is ignored by git, so only `.env.example` should be shared in the repo.
-
-## Useful links
-
-- [Vite environment variables](https://vitejs.dev/guide/env-and-mode.html)
-- [Spoonacular API docs](https://spoonacular.com/food-api)

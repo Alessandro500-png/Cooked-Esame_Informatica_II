@@ -8,14 +8,21 @@ const apiKey = import.meta.env.VITE_SPOONACULAR_KEY
 
 async function fetchRecipes() {
   try {
+    if (!apiKey) {
+      throw new Error('Missing Spoonacular API key. Copy .env.example to .env and add VITE_SPOONACULAR_KEY.')
+    }
+
     const url = `https://api.spoonacular.com/recipes/random?apiKey=${apiKey}&number=6`
     const response = await fetch(url)
-    if (!response.ok) throw new Error('Failed to fetch recipes')
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`API Error ${response.status}: ${text}`)
+    }
     const data = await response.json()
     recipes.value = data.recipes
   } catch (err) {
     error.value = err.message
-    console.error(err)
+    console.error('Fetch error:', err)
   }
 }
 
