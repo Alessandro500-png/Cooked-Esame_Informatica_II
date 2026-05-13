@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue'
 const recipes = ref([])
 const error = ref(null)
 
-const apiKey = import.meta.env.VITE_SPOONACULAR_KEY
+const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 
 async function fetchRecipes() {
   try {
