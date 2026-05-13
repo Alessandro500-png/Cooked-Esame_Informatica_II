@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth"; // Per il Login utente
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore"; // Per il Database delle ricette
 
 const firebaseConfig = {
@@ -18,4 +18,4 @@ const app = initializeApp(firebaseConfig);
 // Esportiamo i servizi che useremo nelle schermate (views)
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-
+export default app; // Aggiunta consigliata
