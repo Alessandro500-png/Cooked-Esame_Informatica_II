@@ -1,13 +1,13 @@
 <template>
   <Login v-if="!isLoggedIn" @login-success="gestisciLoginSuccesso" />
 
-  <Home v-else @logout="gestisciLogout" />
+  <Home v-else :utente="datiUtente" @logout="gestisciLogout" />
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import Login from './views/Login.vue'; 
-import Home from './views/Home.vue'; // <-- Corretto! Rimosso il "views" di troppo
+import Home from './views/Home.vue'; 
 
 // Stato per capire se il prof è dentro o fuori
 const isLoggedIn = ref(false);
@@ -20,7 +20,7 @@ const gestisciLoginSuccesso = (utente) => {
   isLoggedIn.value = true; // Sostituisce la schermata di login con la Home
 };
 
-// Funzione opzionale se vorrai gestire il logout da qui
+// Funzione per gestire il logout
 const gestisciLogout = () => {
   isLoggedIn.value = false;
   datiUtente.value = null;
