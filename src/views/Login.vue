@@ -15,7 +15,7 @@
     <div class="auth-inner">
       <!-- Header premium -->
       <header class="auth-header">
-        <p class="brand-category">BRIGATA DI CUCINA</p>
+        <p class="brand-category">IL TUO RICETTARIO</p>
         <h2 class="brand-logo">Cooked<span class="dynamic-dot">.</span></h2>
       </header>
       
@@ -37,7 +37,7 @@
         
         <div class="form-field">
           <div class="label-row">
-            <label for="password">Password Chiave</label>
+            <label for="password">Password</label>
             <button 
               type="button" 
               class="minimal-toggle" 
@@ -56,10 +56,6 @@
             @focus="isInputFocused = true"
             @blur="isInputFocused = false"
           />
-        </div>
-
-        <div class="form-utility">
-          <a href="#" @click.prevent="recuperaPassword" class="link-subtle">Hai smarrito le credenziali?</a>
         </div>
         
         <!-- Pulsante Premium ad Alto Contrasto e Impatto -->
@@ -124,11 +120,6 @@ const recuperaPassword = () => { console.log("Recupero..."); };
   transition: background-color 0.5s ease;
 }
 
-/* Quando l'utente clicca sui campi, lo sfondo si scalda leggermente */
-.recipe-auth-container.form-active {
-  background-color: #f6f1e7;
-}
-
 /* Linea minimalista superiore con la palette */
 .palette-line {
   position: absolute;
@@ -178,17 +169,6 @@ const recuperaPassword = () => { console.log("Recupero..."); };
   top: 40%;
   left: -150px;
   opacity: 0.05;
-}
-
-/* GIOCO 2: Reattività immersiva. Quando un input è attivo, i bagliori si dilatano e si avvicinano */
-.recipe-auth-container.form-active .orange-glow {
-  transform: scale(1.15) translate(-30px, 30px);
-  opacity: 0.22;
-}
-
-.recipe-auth-container.form-active .yellow-glow {
-  transform: scale(1.2) translate(40px, -40px);
-  opacity: 0.22;
 }
 
 /* Card interna ultra-strutturata */
