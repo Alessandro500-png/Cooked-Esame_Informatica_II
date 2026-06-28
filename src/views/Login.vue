@@ -36,7 +36,7 @@
           
           <div class="form-group">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <label for="password" class="form-label fw-bold text-antracite small text-uppercase tracking-sm m-0">Password Chiave</label>
+              <label for="password" class="form-label fw-bold text-antracite small text-uppercase tracking-sm m-0">Password</label>
               <button 
                 type="button" 
                 class="btn btn-link btn-sm text-decoration-none text-muted fw-semibold p-0 minimal-toggle" 
@@ -57,7 +57,7 @@
           </div>
           
           <div class="text-end mb-3">
-            <a href="#" @click.prevent="recaperuPassword" class="small text-muted text-decoration-none link-subtle">
+            <a href="#" @click.prevent="recuperaPassword" class="small text-muted text-decoration-none link-subtle">
               Hai smarrito le credenziali?
             </a>
           </div>
@@ -203,7 +203,6 @@ const recuperaPassword = () => {
 .arrow { transition: transform 0.3s ease; }
 .action-button-premium:hover .arrow { transform: translateX(5px); }
 
-/* Alert di Bootstrap personalizzato */
 .alert-danger {
   background-color: #fff5f5;
   color: #d63031;
