@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore"; // Per il Database delle ricette
+import { getFirestore } from "firebase/firestore"; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyALIrTFwhkUrnEvuC7BUSTznwEfywugIZU",
@@ -12,10 +12,8 @@ const firebaseConfig = {
   measurementId: "G-VX2ZN0J16L"
 };
 
-// Inizializziamo Firebase
 const app = initializeApp(firebaseConfig);
 
-// Esportiamo i servizi che useremo nelle schermate (views)
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export default app; // Aggiunta consigliata
+export default app; 

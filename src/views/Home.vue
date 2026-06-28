@@ -1,73 +1,60 @@
 <template>
-  <div class="pinterest-layout container-fluid p-0">
+  <div class="cooked-layout container-fluid p-0">
     
-    <header class="navbar navbar-expand bg-white fixed-top shadow-sm px-4 top-navbar">
-      <div class="nav-left-spacer d-none d-md-block"></div>
+    <header class="navbar navbar-expand bg-white fixed-top shadow-sm px-4 top-navbar d-flex align-items-center justify-content-between">
+      
+      <div class="nav-left-zone">
+        <button 
+          v-if="tabAttiva === 'profilo'" 
+          class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0"
+          @click="tabAttiva = 'ricerca'"
+          title="Torna alla Home"
+        >
+          ←
+        </button>
 
-      <div class="search-container flex-grow-1 mx-2 mx-md-5">
+        <div 
+          v-else 
+          class="nav-left-logo cursor-pointer fw-bolder fs-4" 
+          @click="tabAttiva = 'ricerca'"
+        >
+          Cooked<span class="logo-dot">.</span>
+        </div>
+      </div>
+
+      <div v-if="tabAttiva !== 'profilo'" class="search-container flex-grow-1 mx-3 mx-md-5">
         <form @submit.prevent="avviaRicerca" class="w-100 position-relative">
           <span class="search-icon position-absolute top-50 translate-middle-y start-3 ms-3 text-muted">🔍</span>
           <input 
             type="text" 
             v-model="testoRicerca" 
             placeholder="Cerca ricette, ingredienti o chef..." 
-            class="form-control rounded-pill border-0 bg-pinterest px-5 py-2"
+            class="form-control rounded-pill border-0 bg-custom-search px-5 py-2"
           />
         </form>
       </div>
+      <div v-else class="flex-grow-1"></div>
 
-      <div class="nav-right-logo cursor-pointer fw-bolder fs-4" @click="tabAttiva = 'ricerca'">
-        Cooked<span class="logo-dot">.</span>🧑‍🍳
+      <div class="nav-right-profile">
+        <button 
+          class="btn btn-profile rounded-circle d-flex align-items-center justify-content-center p-0"
+          :class="{ 'active-profile': tabAttiva === 'profilo' }"
+          @click="tabAttiva = 'profilo'"
+          title="Area Personale"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+          </svg>
+        </button>
       </div>
     </header>
 
-    <div class="d-flex main-wrapper">
-      
-      <aside class="sidebar-menu bg-white d-flex flex-column justify-content-between align-items-center py-4 border-end">
-        <div class="d-flex flex-column gap-3 w-100 align-items-center sidebar-links">
-          <button 
-            class="btn btn-icon rounded-circle d-flex align-items-center justify-content-center"
-            :class="{ 'active-antracite': tabAttiva === 'ricerca' }" 
-            @click="tabAttiva = 'ricerca'" 
-            title="Home / Ricerca"
-          >
-            🏠
-          </button>
-          <button 
-            class="btn btn-icon rounded-circle d-flex align-items-center justify-content-center"
-            :class="{ 'active-antracite': tabAttiva === 'risultati' }" 
-            @click="tabAttiva = 'risultati'" 
-            title="Risultati"
-          >
-            📊
-          </button>
-          <button 
-            class="btn btn-icon rounded-circle d-flex align-items-center justify-content-center"
-            :class="{ 'active-antracite': tabAttiva === 'dettagli' }" 
-            @click="tabAttiva = 'dettagli'" 
-            title="Dettagli Ricetta"
-          >
-            📖
-          </button>
-          <button 
-            class="btn btn-icon rounded-circle d-flex align-items-center justify-content-center"
-            :class="{ 'active-antracite': tabAttiva === 'profilo' }" 
-            @click="tabAttiva = 'profilo'" 
-            title="Area Personale"
-          >
-            👤
-          </button>
-        </div>
-        
-        <button class="btn btn-icon rounded-circle logout-btn d-flex align-items-center justify-content-center" @click="$emit('logout')" title="Esci">
-          🚪
-        </button>
-      </aside>
-
-      <main class="content-render flex-grow-1 p-4 p-md-5">
+    <div class="main-wrapper">
+      <main class="content-render container py-4 py-md-5">
         
         <div v-if="tabAttiva === 'ricerca'" class="animate-fade-in">
-          <div class="mb-4">
+          <div class="mb-4 text-start">
             <h1 class="fw-extrabold text-antracite display-6 mb-2">Cerca la tua Ricetta</h1>
             <p class="text-secondary fs-6">Seleziona una categoria rapida per iniziare l'ispirazione culinaria</p>
           </div>
@@ -113,10 +100,10 @@
 
         <Risultati v-else-if="tabAttiva === 'risultati'" :ricercaQuery="testoRicerca" :categoriaQuery="categoriaAttiva" />
         <DettagliRicetta v-else-if="tabAttiva === 'dettagli'" />
-        <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" />
+        <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" @logout="$emit('logout')" />
       </main>
-
     </div>
+
   </div>
 </template>
 
@@ -146,68 +133,74 @@ const avviaRicerca = () => {
 </script>
 
 <style scoped>
-/* Integrazione Palette Colori Ufficiali */
-.pinterest-layout {
-  background-color: #F9F7F2; /* Panna */
+/* Stili Generali e Palette */
+.cooked-layout {
+  background-color: #F9F7F2;
   min-height: 100vh;
 }
 
 .text-antracite { color: #2D3436; }
-.bg-pinterest { background-color: #F1EFF4; }
+.bg-custom-search { background-color: #F1EFF4; }
 .cursor-pointer { cursor: pointer; }
 .fw-extrabold { font-weight: 800; }
 
-/* NAVBAR COMPENSAZIONE */
 .top-navbar {
   height: 70px;
   z-index: 1030;
 }
-.nav-left-spacer {
-  width: 75px;
+
+.nav-left-zone {
+  min-width: 100px; /* Assicura uno spazio stabile per l'allineamento di logo/bottone */
 }
+
+.nav-left-logo {
+  letter-spacing: -1px;
+}
+
 .logo-dot {
-  color: #E67E22; /* Arancione */
+  color: #E67E22;
 }
 .start-3 { left: 1rem; }
 
-/* INVOLUCRO CORPO */
 .main-wrapper {
   margin-top: 70px;
 }
 
-/* SIDEBAR REATTIVA */
-.sidebar-menu {
-  width: 75px;
-  position: fixed;
-  top: 70px;
-  bottom: 0;
-  left: 0;
-  z-index: 1020;
-}
-.btn-icon {
-  width: 48px;
-  height: 48px;
-  font-size: 1.25rem;
+/* PULSANTE INDIETRO PREMIUM (FRECCIA LATERALE) */
+.btn-back {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2D3436;
+  background-color: #F1EFF4;
   border: none;
-  background: transparent;
   transition: all 0.2s ease;
 }
-.btn-icon:hover:not(.active-antracite) {
+.btn-back:hover {
+  background-color: #2D3436;
+  color: #ffffff;
+}
+
+/* ICONA PROFILO CHEF */
+.btn-profile {
+  width: 44px;
+  height: 44px;
+  color: #2D3436;
   background-color: #F1EFF4;
+  border: none;
+  transition: all 0.25s ease;
 }
-
-/* Stato Attivo Sidebar (Antracite) */
-.active-antracite {
+.btn-profile:hover {
+  background-color: #e2ded6;
+  color: #E67E22;
+}
+.active-profile {
   background-color: #2D3436 !important;
-  color: white !important;
+  color: #ffffff !important;
 }
 
-/* CONTENUTO */
-.content-render {
-  margin-left: 75px;
-}
-
-/* STILE DELLE CHIPS (FILTRI) CON I COLORI DELLA PALETTE */
+/* STILE DELLE CHIPS */
 .chip-tag {
   background-color: #ffffff;
   color: #2D3436;
@@ -219,17 +212,14 @@ const avviaRicerca = () => {
   border-color: #2D3436 !important;
 }
 
-/* Classi attive per i bottoni dei filtri */
 .chip-tag.active.btn-antracite { background-color: #2D3436; color: white; border-color: #2D3436 !important; }
 .chip-tag.active.btn-orange { background-color: #E67E22; color: white; border-color: #E67E22 !important; }
 .chip-tag.active.btn-green { background-color: #27AE60; color: white; border-color: #27AE60 !important; }
 .chip-tag.active.btn-yellow { background-color: #F1C40F; color: white; border-color: #F1C40F !important; }
 
-/* Colorazioni di esempio schede */
 .bg-orange { background-color: #E67E22; }
 .bg-green { background-color: #27AE60; }
 
-/* Card Hover effect */
 .recipe-card {
   transition: transform 0.25s ease;
   cursor: pointer;
@@ -238,32 +228,11 @@ const avviaRicerca = () => {
   transform: translateY(-4px);
 }
 
-/* Animazione fluida al cambio tab */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* Mobile responsive fixes */
-@media (max-width: 768px) {
-  .content-render { margin-left: 0; padding-bottom: 80px; }
-  .sidebar-menu {
-    width: 100%;
-    height: 60px;
-    flex-direction: row !important;
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    padding: 0 20px !important;
-  }
-  .sidebar-links {
-    flex-direction: row !important;
-    justify-content: space-around;
-  }
-  .main-wrapper { margin-top: 70px; }
 }
 </style>
