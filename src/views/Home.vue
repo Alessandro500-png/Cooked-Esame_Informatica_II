@@ -22,15 +22,38 @@
         </div>
       </div>
 
-      <div v-if="tabAttiva !== 'profilo'" class="search-container flex-grow-1 mx-3 mx-md-5">
+     <div v-if="tabAttiva !== 'profilo'" class="search-container flex-grow-1 mx-3 mx-md-5">
         <form @submit.prevent="avviaRicerca" class="w-100 position-relative">
-          <span class="search-icon position-absolute top-50 translate-middle-y start-3 ms-3 text-muted">🔍</span>
           <input 
             type="text" 
             v-model="testoRicerca" 
             placeholder="Cerca ricette, ingredienti o chef..." 
-            class="form-control rounded-pill border-0 bg-custom-search px-5 py-2"
+            class="form-control rounded-pill border-0 bg-custom-search py-2"
+            style="padding: 0.75rem 130px 0.75rem 1rem; width: 100%; box-sizing: border-box;"
+            @focus="isFocused = true"
+            @blur="setTimeout(() => isFocused = false, 200)"
           />
+          <button type="submit" class="btn btn-primary position-absolute top-50 rounded-pill px-4 py-2" style="z-index: 2; right: 0; transform: translateY(-50%);">
+            Cerca
+          </button>
+
+          <!-- TENDINA DEI SUGGERIMENTI BOOTSTRAP -->
+          <ul 
+            v-if="isFocused && suggerimentiFiltrati.length > 0" 
+            class="dropdown-menu show w-100 mt-1 shadow border-0 rounded-3 text-start"
+            style="max-height: 250px; overflow-y: auto;"
+          >
+            <li v-for="suggerimento in suggerimentiFiltrati" :key="suggerimento.id">
+              <button 
+                class="dropdown-item py-2 px-4 d-flex align-items-center" 
+                type="button"
+                @mousedown="selezionaSuggerimento(suggerimento.nome)"
+              >
+                <span class="text-muted me-2">🔍</span>
+                <span class="text-antracite fw-medium">{{ suggerimento.nome }}</span>
+              </button>
+            </li>
+          </ul>
         </form>
       </div>
       <div v-else class="flex-grow-1"></div>
@@ -108,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Risultati from './Risultati.vue';
 import DettagliRicetta from './DettagliRicetta.vue';
 import AreaPersonale from './AreaPersonale.vue';
@@ -130,6 +153,32 @@ const categorie = ref([
 const avviaRicerca = () => {
   tabAttiva.value = 'risultati';
 };
+// --- MODIFICA RICERCA CON SUGGERIMENTI ---
+const isFocused = ref(false);
+
+// Esempio di dati per i suggerimenti (da collegare poi al tuo database/Firebase)
+const ricetteSuggerite = ref([
+  { id: 1, nome: 'Spaghetti alla Chitarra' },
+  { id: 2, nome: 'Filetto alle Erbe' },
+  { id: 3, nome: 'Pizza Margherita' },
+  { id: 4, nome: 'Tiramisù della Casa' }
+]);
+
+// Filtra i suggerimenti in base a cosa scrive l'utente
+const suggerimentiFiltrati = computed(() => {
+  if (!testoRicerca.value) return [];
+  return ricetteSuggerite.value.filter(ricetta =>
+    ricetta.nome.toLowerCase().includes(testoRicerca.value.toLowerCase())
+  );
+});
+
+// Funzione quando si clicca direttamente su un suggerimento della tendina
+const selezionaSuggerimento = (nomeRicetta) => {
+  testoRicerca.value = nomeRicetta;
+  isFocused.value = false;
+  avviaRicerca(); // Cambia la tab in 'risultati'
+};
+// ------------------------------------------
 </script>
 
 <style scoped>
