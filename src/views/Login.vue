@@ -1,71 +1,78 @@
 <template>
-  <div class="recipe-auth-container" :class="{ 'form-active': isInputFocused }">
-    <!-- Linea di accento cromatica superiore -->
-    <div class="palette-line">
-      <span class="line-segment orange"></span>
-      <span class="line-segment green"></span>
-      <span class="line-segment yellow"></span>
+  <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center position-relative overflow-hidden login-page">
+    
+    <div class="palette-line position-absolute top-0 start-0 w-100 d-flex">
+      <span class="line-segment bg-orange"></span>
+      <span class="line-segment bg-green"></span>
+      <span class="line-segment bg-yellow"></span>
     </div>
 
-    <!-- Sfondo vivo ed energetico che si espande quando lo chef interagisce -->
-    <div class="spice-ambient orange-glow"></div>
-    <div class="spice-ambient yellow-glow"></div>
-    <div class="spice-ambient green-glow"></div>
+    <div class="spice-ambient orange-glow position-absolute rounded-circle"></div>
+    <div class="spice-ambient yellow-glow position-absolute rounded-circle"></div>
 
-    <div class="auth-inner">
-      <!-- Header premium -->
-      <header class="auth-header">
-        <p class="brand-category">IL TUO RICETTARIO</p>
-        <h2 class="brand-logo">Cooked<span class="dynamic-dot">.</span></h2>
-      </header>
-      
-      <!-- Form minimale e immersivo -->
-      <form @submit.prevent="gestisciLogin" class="minimal-form">
+    <div class="row w-100 justify-content-center position-relative z-3 px-3">
+      <div class="col-12 col-sm-10 col-md-7 col-lg-5 auth-card bg-white rounded-4 py-5 px-4 px-sm-5 shadow-sm border border-light-subtle">
         
-        <div class="form-field">
-          <label for="email">Email dello Chef</label>
-          <input 
-            type="email" 
-            v-model="emailInserita" 
-            required 
-            placeholder="Inserisci la tua email..." 
-            id="email"
-            @focus="isInputFocused = true"
-            @blur="isInputFocused = false"
-          />
-        </div>
+        <header class="mb-5 text-start">
+          <p class="brand-category fw-bold text-muted small text-uppercase tracking-wider m-0 mb-2">Il tuo ricettario</p>
+          <h2 class="brand-logo fw-extrabold text-antracite display-5 m-0">
+            Cooked<span class="dynamic-dot">.</span>
+          </h2>
+        </header>
         
-        <div class="form-field">
-          <div class="label-row">
-            <label for="password">Password</label>
-            <button 
-              type="button" 
-              class="minimal-toggle" 
-              @click="mostraPassword = !mostraPassword"
-              tabindex="-1"
-            >
-              {{ mostraPassword ? 'Nascondi' : 'Mostra' }}
-            </button>
+        <form @submit.prevent="gestisciLogin" class="d-flex flex-column gap-4">
+          
+          <div class="form-group">
+            <label for="email" class="form-label fw-bold text-antracite small text-uppercase tracking-sm mb-2">Email dello Chef</label>
+            <input 
+              type="email" 
+              v-model="emailInserita" 
+              required 
+              placeholder="Inserisci la tua email..." 
+              id="email"
+              class="form-control rounded-3 custom-input py-3 px-3"
+            />
           </div>
-          <input 
-            :type="mostraPassword ? 'text' : 'password'" 
-            v-model="passwordInserita" 
-            required 
-            placeholder="Inserisci la tua password..." 
-            id="password"
-            @focus="isInputFocused = true"
-            @blur="isInputFocused = false"
-          />
+          
+          <div class="form-group">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label for="password" class="form-label fw-bold text-antracite small text-uppercase tracking-sm m-0">Password Chiave</label>
+              <button 
+                type="button" 
+                class="btn btn-link btn-sm text-decoration-none text-muted fw-semibold p-0 minimal-toggle" 
+                @click="mostraPassword = !mostraPassword"
+                tabindex="-1"
+              >
+                {{ mostraPassword ? 'Nascondi' : 'Mostra' }}
+              </button>
+            </div>
+            <input 
+              :type="mostraPassword ? 'text' : 'password'" 
+              v-model="passwordInserita" 
+              required 
+              placeholder="Inserisci la tua password..." 
+              id="password"
+              class="form-control rounded-3 custom-input py-3 px-3"
+            />
+          </div>
+          
+          <div class="text-end mb-3">
+            <a href="#" @click.prevent="recaperuPassword" class="small text-muted text-decoration-none link-subtle">
+              Hai smarrito le credenziali?
+            </a>
+          </div>
+          
+          <button type="submit" class="btn btn-antracite w-100 rounded-3 py-3 px-4 fw-bold d-flex justify-content-between align-items-center action-button-premium shadow-sm">
+            <span>Accedi al Ricettario</span>
+            <span class="arrow fs-5">→</span>
+          </button>
+        </form>
+
+        <div v-if="messaggioErrore" class="alert alert-danger mt-4 text-center border-0 small py-3 rounded-3" role="alert">
+          {{ messaggioErrore }}
         </div>
         
-        <!-- Pulsante Premium ad Alto Contrasto e Impatto -->
-        <button type="submit" class="action-button-premium">
-          <span class="btn-text">Accedi al Ricettario</span>
-          <span class="arrow">→</span>
-        </button>
-      </form>
-
-      <p v-if="messaggioErrore" class="error-banner-minimal">{{ messaggioErrore }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -82,9 +89,6 @@ const passwordInserita = ref('');
 const messaggioErrore = ref('');
 const mostraPassword = ref(false);
 
-// Stato per attivare le animazioni immersive dello sfondo
-const isInputFocused = ref(false);
-
 const gestisciLogin = () => {
   messaggioErrore.value = ""; 
 
@@ -98,234 +102,90 @@ const gestisciLogin = () => {
     });
 };
 
-const recuperaPassword = () => { console.log("Recupero..."); };
+const recuperaPassword = () => { 
+  alert("Contatta il capo brigata per resettare la chiave d'accesso!"); 
+};
 </script>
 
 <style scoped>
-/* Struttura di sfondo con pattern a griglia professionale */
-.recipe-auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #F9F7F2;
+/* Colori Palette e Struttura con Pattern a griglia */
+.login-page {
+  background-color: #F9F7F2; /* Panna */
   background-image: 
     linear-gradient(rgba(45, 52, 54, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(45, 52, 54, 0.02) 1px, transparent 1px);
   background-size: 20px 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-  transition: background-color 0.5s ease;
 }
 
-/* Linea minimalista superiore con la palette */
-.palette-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  display: flex;
-  z-index: 5;
-}
+.text-antracite { color: #2D3436; }
+.btn-antracite { background-color: #2D3436; color: #ffffff; }
+.btn-antracite:hover { background-color: #1e2224; color: #ffffff; }
 
+.fw-extrabold { font-weight: 800; }
+.tracking-wider { letter-spacing: 2px; }
+.tracking-sm { letter-spacing: 0.5px; }
+.z-3 { z-index: 3; }
+
+/* Linea superiore */
+.palette-line { height: 4px; z-index: 5; }
 .line-segment { flex: 1; }
-.line-segment.orange { background-color: #E67E22; }
-.line-segment.green { background-color: #27AE60; }
-.line-segment.yellow { background-color: #F1C40F; }
+.bg-orange { background-color: #E67E22; }
+.bg-green { background-color: #27AE60; }
+.bg-yellow { background-color: #F1C40F; }
 
-/* Bagliori ambientali caldi (effetto fuoco/energia della cucina) */
+/* Luci e cerchi cromatici sullo sfondo */
 .spice-ambient {
-  position: absolute;
-  border-radius: 50%;
   filter: blur(130px);
   opacity: 0.15;
   z-index: 1;
-  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.orange-glow { width: 450px; height: 450px; top: -120px; right: -80px; background-color: #E67E22; }
+.yellow-glow { width: 400px; height: 400px; bottom: -80px; left: -80px; background-color: #F1C40F; }
+
+/* Card interna allargata a 460px per dare respiro */
+.auth-card {
+  max-width: 460px;
+  border-color: rgba(45, 52, 54, 0.05) !important;
 }
 
-.orange-glow {
-  width: 450px;
-  height: 450px;
-  background-color: #E67E22;
-  top: -120px;
-  right: -80px;
-}
+.brand-category { font-size: 11px; color: #636e72 !important; }
+.brand-logo { letter-spacing: -1px; }
 
-.yellow-glow {
-  width: 400px;
-  height: 400px;
-  background-color: #F1C40F;
-  bottom: -80px;
-  left: -80px;
-}
-
-.green-glow {
-  width: 300px;
-  height: 300px;
-  background-color: #27AE60;
-  top: 40%;
-  left: -150px;
-  opacity: 0.05;
-}
-
-/* Card interna ultra-strutturata */
-.auth-inner {
-  width: 100%;
-  max-width: 380px;
-  background: #ffffff;
-  padding: 60px 45px;
-  border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(45, 52, 54, 0.04);
-  z-index: 10;
-  border: 1px solid rgba(45, 52, 54, 0.02);
-  transition: transform 0.3s ease;
-}
-
-.auth-header {
-  margin-bottom: 45px;
-}
-
-.brand-category {
-  font-size: 11px;
-  font-weight: 700;
-  color: #636e72;
-  letter-spacing: 2px;
-  margin: 0 0 8px 0;
-}
-
-.brand-logo {
-  font-size: 34px;
-  font-weight: 800;
-  color: #2D3436;
-  margin: 0;
-  letter-spacing: -1px;
-}
-
-/* GIOCO 1: Il punto dinamico che pulsa cromaticamente tra arancio e giallo */
+/* Punto dinamico pulsante */
 .dynamic-dot {
   display: inline-block;
   color: #E67E22;
   animation: spicePulse 3s infinite ease-in-out;
 }
-
 @keyframes spicePulse {
-  0%, 100% {
-    color: #E67E22;
-    transform: scale(1);
-  }
-  50% {
-    color: #F1C40F;
-    transform: scale(1.2);
-  }
+  0%, 100% { color: #E67E22; transform: scale(1); }
+  50% { color: #F1C40F; transform: scale(1.2); }
 }
 
-/* Campi del form */
-.minimal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.label-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.form-field label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #2D3436;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.minimal-toggle {
-  background: none;
-  border: none;
-  font-size: 11px;
-  font-weight: 600;
-  color: #636e72;
-  cursor: pointer;
-  padding: 0;
-}
-
-.minimal-toggle:hover {
-  color: #2D3436;
-}
-
-.form-field input {
-  width: 100%;
-  padding: 16px;
+/* Input Form customizzati sulla palette */
+.custom-input {
   background-color: #fcfbfa;
   border: 1px solid #e2ded6;
-  border-radius: 12px;
-  font-size: 14px;
   color: #2D3436;
-  outline: none;
-  box-sizing: border-box;
-  transition: all 0.25s ease;
+  font-size: 15px;
 }
-
-.form-field input::placeholder {
-  color: #b2bec3;
-  font-weight: 400;
-}
-
-/* Focus deciso e netto: bordo antracite e ombra sottile arancione */
-.form-field input:focus {
+.custom-input::placeholder { color: #b2bec3; }
+.custom-input:focus {
   border-color: #2D3436;
   background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
 }
 
-.form-utility {
-  text-align: right;
-  margin-top: -12px;
-}
+/* Pulsante premium e link */
+.link-subtle:hover { color: #E67E22 !important; }
+.minimal-toggle:hover { color: #2D3436 !important; }
 
-.link-subtle {
-  font-size: 12px;
-  color: #636e72;
-  text-decoration: none;
-}
-
-.link-subtle:hover {
-  color: #E67E22;
-}
-
-/* GIOCO 3: Pulsante di azione Premium e Aggressivo con riempimento magnetico */
 .action-button-premium {
-  width: 100%;
-  padding: 18px 22px;
-  background-color: #2D3436;
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   position: relative;
   overflow: hidden;
   z-index: 1;
   transition: all 0.3s ease;
-  margin-top: 10px;
-  box-shadow: 0 10px 20px rgba(45, 52, 54, 0.1);
 }
-
-/* Pseudo-elemento per l'effetto riempimento arancione dinamico */
 .action-button-premium::before {
   content: '';
   position: absolute;
@@ -337,37 +197,15 @@ const recuperaPassword = () => { console.log("Recupero..."); };
   z-index: -1;
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.action-button-premium:hover::before { width: 100%; }
+.action-button-premium:hover { box-shadow: 0 12px 25px rgba(230, 126, 34, 0.25) !important; }
 
-.action-button-premium:hover::before {
-  width: 100%;
-}
+.arrow { transition: transform 0.3s ease; }
+.action-button-premium:hover .arrow { transform: translateX(5px); }
 
-.action-button-premium:hover {
-  box-shadow: 0 12px 25px rgba(230, 126, 34, 0.25);
-}
-
-.action-button-premium:active {
-  transform: scale(0.98);
-}
-
-.arrow {
-  font-size: 18px;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.action-button-premium:hover .arrow {
-  transform: translateX(5px);
-}
-
-/* Errore */
-.error-banner-minimal {
-  color: #d63031;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  margin-top: 20px;
-  padding: 10px;
+/* Alert di Bootstrap personalizzato */
+.alert-danger {
   background-color: #fff5f5;
-  border-radius: 8px;
+  color: #d63031;
 }
 </style>
