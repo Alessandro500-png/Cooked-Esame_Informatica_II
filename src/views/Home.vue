@@ -1,35 +1,37 @@
 <template>
-  <div class="cooked-layout container-fluid p-0">
+  <div class="container-fluid min-vh-100 p-0" style="background-color: #F9F7F2;">
     
-    <header class="navbar navbar-expand bg-white fixed-top shadow-sm px-4 top-navbar d-flex align-items-center justify-content-between">
+    <header class="navbar navbar-expand bg-white fixed-top shadow-sm px-4 d-flex align-items-center justify-content-between" style="height: 70px; z-index: 1030;">
       
-      <div class="nav-left-zone">
+      <div style="min-width: 100px;">
         <button 
           v-if="tabAttiva === 'profilo'" 
-          class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0"
+          class="btn rounded-circle d-flex align-items-center justify-content-center lh-1 fs-5 border-0"
+          style="width: 40px; height: 40px; background-color: #F1EFF4; color: #2D3436;"
           @click="tabAttiva = 'ricerca'"
           title="Torna alla Home"
         >
           ←
         </button>
-
         <div 
           v-else 
-          class="nav-left-logo cursor-pointer fw-bolder fs-4" 
+          class="navbar-brand cursor-pointer m-0 text-dark" 
+          style="font-weight: 900; letter-spacing: -1px; font-size: 1.5rem;"
           @click="tabAttiva = 'ricerca'"
         >
-          Cooked<span class="logo-dot">.</span>
+          Cooked<span style="color: #E67E22;">.</span>
         </div>
       </div>
 
-     <div v-if="tabAttiva !== 'profilo'" class="search-container flex-grow-1 mx-3 mx-md-5">
+      <div v-if="tabAttiva !== 'profilo'" class="flex-grow-1 mx-3 mx-md-5">
         <form @submit.prevent="avviaRicerca" class="w-100 position-relative">
+          <span class="position-absolute top-50 translate-middle-y start-0 ms-3 text-muted">🔍</span>
           <input 
             type="text" 
             v-model="testoRicerca" 
             placeholder="Cerca ricette, ingredienti o chef..." 
-            class="form-control rounded-pill border-0 bg-custom-search py-2"
-            style="padding: 0.75rem 130px 0.75rem 1rem; width: 100%; box-sizing: border-box;"
+            class="form-control rounded-pill border-0 px-5 py-2"
+            style="background-color: #F1EFF4; color: #2D3436;"
             @focus="isFocused = true"
             @blur="setTimeout(() => isFocused = false, 200)"
           />
@@ -58,10 +60,10 @@
       </div>
       <div v-else class="flex-grow-1"></div>
 
-      <div class="nav-right-profile">
+      <div>
         <button 
-          class="btn btn-profile rounded-circle d-flex align-items-center justify-content-center p-0"
-          :class="{ 'active-profile': tabAttiva === 'profilo' }"
+          class="btn d-flex align-items-center justify-content-center p-0 rounded-circle border-0"
+          :style="tabAttiva === 'profilo' ? 'width: 44px; height: 44px; background-color: #2D3436; color: #ffffff;' : 'width: 44px; height: 44px; background-color: #F1EFF4; color: #2D3436;'"
           @click="tabAttiva = 'profilo'"
           title="Area Personale"
         >
@@ -73,12 +75,12 @@
       </div>
     </header>
 
-    <div class="main-wrapper">
-      <main class="content-render container py-4 py-md-5">
+    <div class="pt-5 mt-4">
+      <main class="container py-4 py-md-5">
         
-        <div v-if="tabAttiva === 'ricerca'" class="animate-fade-in">
+        <div v-if="tabAttiva === 'ricerca'">
           <div class="mb-4 text-start">
-            <h1 class="fw-extrabold text-antracite display-6 mb-2">Cerca la tua Ricetta</h1>
+            <h1 class="display-6 mb-2 text-dark" style="font-weight: 800; color: #2D3436;">Cerca la tua Ricetta</h1>
             <p class="text-secondary fs-6">Seleziona una categoria rapida per iniziare l'ispirazione culinaria</p>
           </div>
 
@@ -87,42 +89,58 @@
               v-for="categoria in categorie" 
               :key="categoria.id"
               type="button"
-              class="btn chip-tag rounded-pill px-4 fw-bold border"
-              :class="{ 'active': categoriaAttiva === categoria.id, [categoria.colore]: true }"
+              class="btn rounded-pill px-4 fw-bold shadow-sm border-0"
+              :style="categoriaAttiva === categoria.id ? `background-color: ${categoria.colore}; color: ${categoria.testoColore};` : 'background-color: #ffffff; color: #2D3436;'"
               @click="categoriaAttiva = categoria.id"
             >
               {{ categoria.nome }}
             </button>
           </div>
 
-          <div class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
-            <div class="col">
-              <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100 recipe-card">
-                <div class="bg-orange p-5 text-white d-flex align-items-center justify-content-center text-center ratio ratio-4x3 fw-bold">
-                  Esempio Primi
-                </div>
-                <div class="card-body bg-white p-3">
-                  <h5 class="card-title text-antracite fw-bold m-0">Spaghetti alla Chitarra</h5>
-                  <small class="text-muted">Chef Pro</small>
-                </div>
-              </div>
+          <div v-if="caricamentoInCorso" class="text-center py-5">
+            <div class="spinner-border" style="color: #2D3436;" role="status">
+              <span class="visually-hidden">Caricamento in corso...</span>
             </div>
-            <div class="col">
-              <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100 recipe-card">
-                <div class="bg-green p-5 text-white d-flex align-items-center justify-content-center text-center ratio ratio-1x1 fw-bold">
-                  Esempio Secondi
+          </div>
+
+          <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+            <div 
+              class="col" 
+              v-for="ricetta in ricetteFiltrate" 
+              :key="ricetta.id"
+              @click="mostraDettagli(ricetta)"
+              style="cursor: pointer;"
+            >
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <div class="ratio ratio-4x3">
+                  <img 
+                    :src="ricetta.immagine || ricetta.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500'" 
+                    class="card-img-top object-fit-cover" 
+                    :alt="ricetta.titolo || ricetta.name || ricetta.title"
+                  />
                 </div>
-                <div class="card-body bg-white p-3">
-                  <h5 class="card-title text-antracite fw-bold m-0">Filetto alle Erbe</h5>
-                  <small class="text-muted">Chef Ercole</small>
+                <div class="card-body bg-white p-3 d-flex flex-column justify-content-between">
+                  <h5 class="card-title fw-bold m-0 text-truncate" style="color: #2D3436; max-width: 100%;">
+                    {{ ricetta.titolo || ricetta.name || ricetta.title || 'Ricetta Speciale' }}
+                  </h5>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted text-truncate" style="max-width: 60%;">Chef {{ ricetta.autore || ricetta.chef || 'Anonimo' }}</small>
+                    <span class="badge rounded-pill border px-2 py-1 small" style="background-color: #F1EFF4; color: #2D3436; border-color: #e2ded6 !important;">
+                      {{ ricetta.difficolta || ricetta.difficulty || 'Media' }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <div v-if="!caricamentoInCorso && ricetteFiltrate.length === 0" class="text-center text-muted py-5">
+            Nessun elemento trovato.
+          </div>
         </div>
 
         <Risultati v-else-if="tabAttiva === 'risultati'" :ricercaQuery="testoRicerca" :categoriaQuery="categoriaAttiva" />
-        <DettagliRicetta v-else-if="tabAttiva === 'dettagli'" />
+        <DettagliRicetta v-else-if="tabAttiva === 'dettagli'" :ricetta="ricettaSelezionata" />
         <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" @logout="$emit('logout')" />
       </main>
     </div>
@@ -131,10 +149,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import Risultati from './Risultati.vue';
-import DettagliRicetta from './DettagliRicetta.vue';
+import { ref, onMounted, computed } from 'vue';
 import AreaPersonale from './AreaPersonale.vue';
+import DettagliRicetta from './DettagliRicetta.vue';
+import Risultati from './Risultati.vue';
 
 defineProps(['utente']);
 defineEmits(['logout']);
@@ -142,16 +160,94 @@ defineEmits(['logout']);
 const tabAttiva = ref('ricerca');
 const testoRicerca = ref('');
 const categoriaAttiva = ref('tutte');
+const ricettaSelezionata = ref(null);
+
+const ricette = ref([]);
+const caricamentoInCorso = ref(true);
+const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 
 const categorie = ref([
-  { id: 'tutte', nome: 'Tutte', colore: 'btn-antracite' },
-  { id: 'primi', nome: 'Primi Piatti', colore: 'btn-orange' },
-  { id: 'secondi', nome: 'Secondi', colore: 'btn-green' },
-  { id: 'dolci', nome: 'Dolci', colore: 'btn-yellow' }
+  { id: 'tutte', nome: 'Tutte', colore: '#2D3436', testoColore: '#ffffff' },
+  { id: 'primi', nome: 'Primi Piatti', tag: 'pasta|main course', colore: '#E67E22', testoColore: '#ffffff' },
+  { id: 'secondi', nome: 'Secondi', tag: 'meat|seafood', colore: '#27AE60', testoColore: '#ffffff' },
+  { id: 'dolci', nome: 'Dolci', tag: 'dessert', colore: '#F1C40F', testoColore: '#2D3436' }
 ]);
 
-const avviaRicerca = () => {
-  tabAttiva.value = 'risultati';
+onMounted(async () => {
+  await caricaRicette();
+});
+
+const caricaRicette = async (query = '') => {
+  caricamentoInCorso.value = true;
+  try {
+    const params = new URLSearchParams({
+      apiKey: apiKey,
+      number: 20,
+      instructionsRequired: true,
+      addRecipeInformation: true,
+      fillIngredients: true
+    });
+
+    if (query) {
+      params.append('query', query);
+    }
+
+    const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?${params.toString()}`);
+    
+    if (!response.ok) throw new Error(`Errore API: ${response.status}`);
+    
+    const data = await response.json();
+    ricette.value = data.results.map(r => ({
+      id: r.id,
+      titolo: r.title,
+      name: r.title,
+      title: r.title,
+      immagine: r.image,
+      image: r.image,
+      difficolta: r.difficulty || 'Media',
+      difficulty: r.difficulty || 'Media',
+      autore: r.author || 'Chef Sconosciuto',
+      chef: r.author || 'Chef Sconosciuto',
+      categoria: r.cuisines?.[0] || 'varia',
+      category: r.cuisines?.[0] || 'varia',
+      tempo: r.readyInMinutes || 30,
+      ingredienti: r.extendedIngredients || [],
+      istruzioni: r.instructions || 'Istruzioni non disponibili'
+    }));
+  } catch (errore) {
+    console.error('Errore caricamento ricette:', errore);
+    ricette.value = [];
+  } finally {
+    caricamentoInCorso.value = false;
+  }
+};
+
+const ricetteFiltrate = computed(() => {
+  if (categoriaAttiva.value === 'tutte') {
+    return ricette.value;
+  }
+  
+  const categoria = categorie.value.find(c => c.id === categoriaAttiva.value);
+  if (!categoria?.tag) return ricette.value;
+  
+  const tags = categoria.tag.split('|');
+  return ricette.value.filter(r => {
+    const cat = (r.categoria || r.category || '').toLowerCase();
+    return tags.some(tag => cat.includes(tag.toLowerCase()));
+  });
+});
+
+const avviaRicerca = async () => {
+  if (testoRicerca.value.trim()) {
+    tabAttiva.value = 'risultati';
+  } else {
+    tabAttiva.value = 'ricerca';
+  }
+};
+
+const mostraDettagli = (ricetta) => {
+  ricettaSelezionata.value = ricetta;
+  tabAttiva.value = 'dettagli';
 };
 // --- MODIFICA RICERCA CON SUGGERIMENTI ---
 const isFocused = ref(false);
@@ -182,106 +278,4 @@ const selezionaSuggerimento = (nomeRicetta) => {
 </script>
 
 <style scoped>
-/* Stili Generali e Palette */
-.cooked-layout {
-  background-color: #F9F7F2;
-  min-height: 100vh;
-}
-
-.text-antracite { color: #2D3436; }
-.bg-custom-search { background-color: #F1EFF4; }
-.cursor-pointer { cursor: pointer; }
-.fw-extrabold { font-weight: 800; }
-
-.top-navbar {
-  height: 70px;
-  z-index: 1030;
-}
-
-.nav-left-zone {
-  min-width: 100px; /* Assicura uno spazio stabile per l'allineamento di logo/bottone */
-}
-
-.nav-left-logo {
-  letter-spacing: -1px;
-}
-
-.logo-dot {
-  color: #E67E22;
-}
-.start-3 { left: 1rem; }
-
-.main-wrapper {
-  margin-top: 70px;
-}
-
-/* PULSANTE INDIETRO PREMIUM (FRECCIA LATERALE) */
-.btn-back {
-  width: 44px;
-  height: 44px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #2D3436;
-  background-color: #F1EFF4;
-  border: none;
-  transition: all 0.2s ease;
-}
-.btn-back:hover {
-  background-color: #2D3436;
-  color: #ffffff;
-}
-
-/* ICONA PROFILO CHEF */
-.btn-profile {
-  width: 44px;
-  height: 44px;
-  color: #2D3436;
-  background-color: #F1EFF4;
-  border: none;
-  transition: all 0.25s ease;
-}
-.btn-profile:hover {
-  background-color: #e2ded6;
-  color: #E67E22;
-}
-.active-profile {
-  background-color: #2D3436 !important;
-  color: #ffffff !important;
-}
-
-/* STILE DELLE CHIPS */
-.chip-tag {
-  background-color: #ffffff;
-  color: #2D3436;
-  border-color: #e2ded6 !important;
-  transition: all 0.2s ease;
-}
-.chip-tag:hover:not(.active) {
-  transform: translateY(-1px);
-  border-color: #2D3436 !important;
-}
-
-.chip-tag.active.btn-antracite { background-color: #2D3436; color: white; border-color: #2D3436 !important; }
-.chip-tag.active.btn-orange { background-color: #E67E22; color: white; border-color: #E67E22 !important; }
-.chip-tag.active.btn-green { background-color: #27AE60; color: white; border-color: #27AE60 !important; }
-.chip-tag.active.btn-yellow { background-color: #F1C40F; color: white; border-color: #F1C40F !important; }
-
-.bg-orange { background-color: #E67E22; }
-.bg-green { background-color: #27AE60; }
-
-.recipe-card {
-  transition: transform 0.25s ease;
-  cursor: pointer;
-}
-.recipe-card:hover {
-  transform: translateY(-4px);
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 </style>

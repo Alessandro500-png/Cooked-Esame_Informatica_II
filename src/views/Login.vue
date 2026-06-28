@@ -98,7 +98,7 @@ const gestisciLogin = () => {
     })
     .catch((error) => {
       console.error(error);
-      messaggioErrore.value = "Credenziali non trovate nel database della cucina.";
+      messaggioErrore.value = "Email o password errate";
     });
 };
 
