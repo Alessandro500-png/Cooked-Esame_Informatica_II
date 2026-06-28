@@ -3,15 +3,15 @@
     <!-- SEZIONE PROFILO UTENTE -->
     <div class="row mb-4">
       <div class="col-12">
-        <div class="card profile-card border-0 shadow-sm p-4 text-center text-md-start">
+        <div class="card rounded-4 border-0 shadow-sm p-4 text-center text-md-start">
           <div class="row align-items-center">
             <div class="col-md-2 mb-3 mb-md-0 text-center">
-              <div class="avatar-circle mx-auto">
-                <span class="avatar-letter">{{ nomeUtente.charAt(0).toUpperCase() || 'U' }}</span>
+              <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center shadow mx-auto" style="width: 90px; height: 90px;">
+                <span class="fs-1 fw-bold text-white">{{ nomeUtente.charAt(0).toUpperCase() || 'U' }}</span>
               </div>
             </div>
             <div class="col-md-6">
-              <span class="badge status-badge mb-2" v-if="!isModifica">Esame informatica</span>
+              <span class="badge rounded-pill bg-success bg-opacity-10 text-success fw-semibold py-1 px-3 mb-2" v-if="!isModifica">Esame informatica</span>
               <h2 class="fw-bold mb-1">{{ nomeUtente || 'Utente' }}</h2>
               <p class="text-muted mb-0">
                 <i class="bi bi-envelope-fill me-1"></i> {{ emailUtente }}
@@ -21,7 +21,8 @@
               <button 
                 v-if="!isModifica"
                 @click="isModifica = true" 
-                class="btn btn-custom-orange fw-bold px-4 py-2"
+                class="btn btn-warning text-white fw-bold px-4 py-2 rounded-3"
+                style="background-color: #E67E22; border-color: #E67E22;"
               >
                 <i class="bi bi-pencil-square me-2"></i>Modifica Profilo
               </button>
@@ -47,71 +48,71 @@
 
         <!-- FORM DI MODIFICA -->
         <div v-if="isModifica" class="card border-0 shadow-sm p-4 mt-4">
-          <h5 class="fw-bold mb-4 text-dark-custom">Modifica i tuoi dati</h5>
+          <h5 class="fw-bold mb-4 text-dark">Modifica i tuoi dati</h5>
           
           <div class="row g-3">
             <div class="col-md-6">
-              <label for="nome" class="form-label fw-bold text-dark-custom">Nome</label>
+              <label for="nome" class="form-label fw-bold text-dark">Nome</label>
               <input 
                 type="text" 
                 v-model="datiModifica.nome" 
                 id="nome"
-                class="form-control custom-input py-2 px-3"
+                class="form-control rounded-3 border-secondary-subtle bg-light"
                 placeholder="Il tuo nome"
               />
             </div>
             
             <div class="col-md-6">
-              <label for="cognome" class="form-label fw-bold text-dark-custom">Cognome</label>
+              <label for="cognome" class="form-label fw-bold text-dark">Cognome</label>
               <input 
                 type="text" 
                 v-model="datiModifica.cognome" 
                 id="cognome"
-                class="form-control custom-input py-2 px-3"
+                class="form-control rounded-3 border-secondary-subtle bg-light"
                 placeholder="Il tuo cognome"
               />
             </div>
 
             <div class="col-12">
-              <label for="bio" class="form-label fw-bold text-dark-custom">Bio / Specialità</label>
+              <label for="bio" class="form-label fw-bold text-dark">Bio / Specialità</label>
               <textarea 
                 v-model="datiModifica.bio" 
                 id="bio"
-                class="form-control custom-input py-2 px-3"
+                class="form-control rounded-3 border-secondary-subtle bg-light"
                 rows="3"
                 placeholder="Descrivi i tuoi piatti preferiti..."
               ></textarea>
             </div>
 
             <div class="col-md-6">
-              <label for="telefono" class="form-label fw-bold text-dark-custom">Telefono (facoltativo)</label>
+              <label for="telefono" class="form-label fw-bold text-dark">Telefono (facoltativo)</label>
               <input 
                 type="tel" 
                 v-model="datiModifica.telefono" 
                 id="telefono"
-                class="form-control custom-input py-2 px-3"
+                class="form-control rounded-3 border-secondary-subtle bg-light"
                 placeholder="+39 3xx xxxx xxxx"
               />
             </div>
 
             <div class="col-md-6">
-              <label for="citta" class="form-label fw-bold text-dark-custom">Città (facoltativo)</label>
+              <label for="citta" class="form-label fw-bold text-dark">Città (facoltativo)</label>
               <input 
                 type="text" 
                 v-model="datiModifica.citta" 
                 id="citta"
-                class="form-control custom-input py-2 px-3"
+                class="form-control rounded-3 border-secondary-subtle bg-light"
                 placeholder="La tua città"
               />
             </div>
 
             <div class="col-12">
-              <label for="password" class="form-label fw-bold text-dark-custom">Nuova password</label>
+              <label for="password" class="form-label fw-bold text-dark">Nuova password</label>
               <input 
                 type="password" 
                 v-model="nuovaPassword" 
                 id="password"
-                class="form-control custom-input py-2 px-3"
+                class="form-control rounded-3 border-secondary-subtle bg-light"
                 placeholder="Lascia vuoto se non vuoi cambiarla"
               />
             </div>
@@ -131,7 +132,7 @@
     <div class="row">
       <div class="col-lg-3 mb-4">
         <div class="list-group shadow-sm border-0">
-          <button class="list-group-item list-group-item-action active-custom fw-bold">
+          <button type="button" class="list-group-item list-group-item-action active bg-warning text-white fw-bold rounded-3" style="border-color: #E67E22; background-color: #E67E22;">
             Ricette Preferite (3)
           </button>
         </div>
@@ -144,40 +145,40 @@
 
         <div class="row row-cols-1 row-cols-md-3 g-3">
           <div class="col">
-            <div class="card recipe-card h-100 border-0 shadow-sm">
-              <div class="recipe-img-placeholder text-white d-flex align-items-center justify-content-center">
-                <span>Carbonara 🍝</span>
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+              <div class="ratio ratio-4x3 bg-dark text-white d-flex align-items-center justify-content-center">
+                <span class="fw-semibold">Carbonara 🍝</span>
               </div>
               <div class="card-body p-3">
-                <span class="badge text-bg-warning-custom mb-2">Primo</span>
+                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">Primo</span>
                 <h5 class="card-title fw-bold text-truncate mb-1">Spaghetti alla Carbonara</h5>
-                <p class="card-text small text-muted text-truncate-2">La ricetta scientifica perfetta per il professore.</p>
+                <p class="card-text small text-muted text-truncate">La ricetta scientifica perfetta per il professore.</p>
               </div>
             </div>
           </div>
 
           <div class="col">
-            <div class="card recipe-card h-100 border-0 shadow-sm">
-              <div class="recipe-img-placeholder text-white d-flex align-items-center justify-content-center">
-                <span>Tiramisù ☕</span>
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+              <div class="ratio ratio-4x3 bg-dark text-white d-flex align-items-center justify-content-center">
+                <span class="fw-semibold">Tiramisù ☕</span>
               </div>
               <div class="card-body p-3">
-                <span class="badge text-bg-warning-custom mb-2">Dolce</span>
+                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">Dolce</span>
                 <h5 class="card-title fw-bold text-truncate mb-1">Tiramisù Classico</h5>
-                <p class="card-text small text-muted text-truncate-2">Il dolce perfetto per ricaricare le energie post-esame.</p>
+                <p class="card-text small text-muted text-truncate">Il dolce perfetto per ricaricare le energie post-esame.</p>
               </div>
             </div>
           </div>
 
           <div class="col">
-            <div class="card recipe-card h-100 border-0 shadow-sm">
-              <div class="recipe-img-placeholder text-white d-flex align-items-center justify-content-center">
-                <span>Pizza 🍕</span>
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+              <div class="ratio ratio-4x3 bg-dark text-white d-flex align-items-center justify-content-center">
+                <span class="fw-semibold">Pizza 🍕</span>
               </div>
               <div class="card-body p-3">
-                <span class="badge text-bg-warning-custom mb-2">Lievitati</span>
+                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">Lievitati</span>
                 <h5 class="card-title fw-bold text-truncate mb-1">Pizza Margherita</h5>
-                <p class="card-text small text-muted text-truncate-2">Idratazione al 70% con cornicione pronunciato.</p>
+                <p class="card-text small text-muted text-truncate">Idratazione al 70% con cornicione pronunciato.</p>
               </div>
             </div>
           </div>
@@ -322,174 +323,3 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-/* PALETTE DI COLORI */
-:root {
-  --color-bg: #F9F7F2;          
-  --color-dark: #2D3436;        
-  --color-orange: #E67E22;      
-  --color-green: #27AE60;       
-  --color-yellow: #F1C40F;      
-}
-
-.profile-card {
-  background-color: #ffffff;
-  border-radius: 16px;
-}
-
-.text-dark-custom {
-  color: var(--color-dark, #2D3436);
-}
-
-.avatar-circle {
-  width: 90px;
-  height: 90px;
-  background-color: var(--color-yellow, #F1C40F);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-.avatar-letter {
-  font-size: 36px;
-  font-weight: bold;
-  color: #ffffff;
-}
-
-.status-badge {
-  background-color: rgba(39, 174, 96, 0.1);
-  color: var(--color-green, #27AE60);
-  font-weight: bold;
-  padding: 6px 12px;
-  border-radius: 50px;
-}
-
-.text-bg-warning-custom {
-  background-color: rgba(241, 196, 15, 0.15);
-  color: #cc9a06;
-  font-weight: 600;
-}
-
-.btn-custom-orange {
-  background-color: var(--color-orange, #E67E22);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  transition: opacity 0.2s;
-}
-.btn-custom-orange:hover {
-  opacity: 0.9;
-  color: white;
-}
-
-.active-custom {
-  background-color: var(--color-orange, #E67E22) !important;
-  border-color: var(--color-orange, #E67E22) !important;
-  color: white !important;
-}
-
-.recipe-card {
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.2s;
-}
-.recipe-card:hover {
-  transform: translateY(-3px);
-}
-
-.recipe-img-placeholder {
-  height: 140px;
-  background-color: var(--color-dark, #2D3436);
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.text-truncate-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;  
-  overflow: hidden;
-}
-
-/* INPUT FORM PERSONALIZZATI */
-.custom-input {
-  background-color: #fcfbfa;
-  border: 1px solid #e2ded6;
-  color: #2D3436;
-  font-size: 14px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.custom-input::placeholder {
-  color: #b2bec3;
-}
-
-.custom-input:focus {
-  border-color: var(--color-orange, #E67E22);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
-  outline: none;
-}
-
-.form-label {
-  color: var(--color-dark, #2D3436);
-  font-size: 14px;
-}
-
-/* PULSANTI */
-.btn-success {
-  background-color: var(--color-green, #27AE60);
-  border-color: var(--color-green, #27AE60);
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.btn-success:hover {
-  background-color: #1f8c48;
-  border-color: #1f8c48;
-}
-
-.btn-success:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
-  border-color: #5a6268;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* MESSAGGI ALERT */
-.alert {
-  border-radius: 12px;
-  background-color: #f8f9fa;
-  border: none;
-}
-
-.alert-success {
-  background-color: rgba(39, 174, 96, 0.1);
-  color: var(--color-green, #27AE60);
-  border-left: 4px solid var(--color-green, #27AE60);
-}
-
-.alert-danger {
-  background-color: rgba(211, 48, 49, 0.1);
-  color: #d32031;
-  border-left: 4px solid #d32031;
-}
-</style>
