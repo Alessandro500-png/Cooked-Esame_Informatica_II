@@ -117,7 +117,7 @@
         </div>
 
         <Risultati v-else-if="tabAttiva === 'risultati'" :ricercaQuery="testoRicerca" :categoriaQuery="categoriaAttiva" />
-        <DettagliRicetta v-else-if="tabAttiva === 'dettagli'" />
+        <DettagliRicetta v-else-if="tabAttiva === 'dettagli'" :ricetta="ricettaSelezionata" />
         <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" @logout="$emit('logout')" />
       </main>
     </div>
@@ -127,15 +127,17 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import AreaPersonale from './AreaPersonale.vue';
+import DettagliRicetta from './DettagliRicetta.vue';
+import Risultati from './Risultati.vue';
 
 defineProps(['utente']);
 defineEmits(['logout']);
 
-const router = useRouter();
 const tabAttiva = ref('ricerca');
 const testoRicerca = ref('');
 const categoriaAttiva = ref('tutte');
+const ricettaSelezionata = ref(null);
 
 const ricette = ref([]);
 const caricamentoInCorso = ref(true);
@@ -222,11 +224,8 @@ const avviaRicerca = async () => {
 };
 
 const mostraDettagli = (ricetta) => {
-  router.push({ 
-    name: 'DettagliRicetta',
-    params: { id: ricetta.id },
-    query: { ricetta: JSON.stringify(ricetta) }
-  });
+  ricettaSelezionata.value = ricetta;
+  tabAttiva.value = 'dettagli';
 };
 </script>
 
