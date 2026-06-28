@@ -35,7 +35,11 @@
             @focus="isFocused = true"
             @blur="setTimeout(() => isFocused = false, 200)"
           />
-          <button type="submit" class="btn btn-primary position-absolute top-50 rounded-pill px-4 py-2" style="z-index: 2; right: 0; transform: translateY(-50%);">
+          <button
+            type="submit"
+            class="btn position-absolute top-50 rounded-pill px-4 py-2"
+            style="z-index: 2; right: 0; transform: translateY(-50%); background-color: #E67E22; border-color: #E67E22; color: #ffffff;"
+          >
             Cerca
           </button>
 
