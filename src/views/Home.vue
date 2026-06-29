@@ -144,7 +144,6 @@
         </div>
 
         <Risultati v-else-if="tabAttiva === 'risultati'" :ricercaQuery="testoRicerca" :categoriaQuery="categoriaAttiva" />
-        <DettagliRicetta v-else-if="tabAttiva === 'dettagli'" :ricetta="ricettaSelezionata" />
         <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" @logout="$emit('logout')" />
       </main>
     </div>
@@ -155,8 +154,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import AreaPersonale from './AreaPersonale.vue';
-import DettagliRicetta from './DettagliRicetta.vue';
 import Risultati from './Risultati.vue';
+import { useRouter } from 'vue-router';
 
 defineProps(['utente']);
 defineEmits(['logout']);
@@ -249,9 +248,14 @@ const avviaRicerca = async () => {
   }
 };
 
+const router = useRouter();
 const mostraDettagli = (ricetta) => {
-  ricettaSelezionata.value = ricetta;
-  tabAttiva.value = 'dettagli';
+  if (ricetta?.id) {
+    router.push({ name: 'DettagliRicetta', params: { id: ricetta.id } });
+  } else {
+    ricettaSelezionata.value = ricetta;
+    tabAttiva.value = 'dettagli';
+  }
 };
 // --- MODIFICA RICERCA CON SUGGERIMENTI ---
 const isFocused = ref(false);
