@@ -237,6 +237,8 @@ const applicaTabDaRoute = () => {
     }
   } else if (tab === 'ricerca') {
     tabAttiva.value = 'ricerca';
+  } else if (tab === 'profilo') {
+    tabAttiva.value = 'profilo';
   }
 };
 
@@ -377,7 +379,7 @@ const mostraDettagli = (ricetta) => {
   if (ricetta?.id) {
     const query = tabAttiva.value === 'risultati'
       ? { from: 'risultati', search: testoRicerca.value, categoria: categoriaAttiva.value }
-      : { from: 'ricerca' };
+      : { from: 'home' };
 
     router.push({ name: 'DettagliRicetta', params: { id: ricetta.id }, query });
   }

@@ -1,16 +1,27 @@
 <template>
-  <div class="container py-5">
+  <div class="container py-5 position-relative">
     <transition name="fade-scale" mode="out-in">
-      <!-- Card principale senza bordi, con ombra grande e angoli super arrotondati -->
+      <!-- Card principale con angoli super arrotondati (rounded-5) e ombra grande -->
       <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white">
         
         <!-- Immagine di Copertina con aspect-ratio nativo di Bootstrap (ratio-21x9) -->
         <div class="ratio ratio-21x9 position-relative header-image-zone">
           <img :src="ricettaData.immagine || ricettaData.image || defaultImage" class="w-100 h-100 object-fit-cover" :alt="ricettaData.titolo || ricettaData.title" />
           <div class="image-gradient-overlay"></div>
-          
-          <!-- Badge Categoria fluttuante usando il posizionamento assoluto di Bootstrap -->
-          <div v-if="ricettaData.categoria" class="position-absolute bottom-0 start-0 m-4 z-2">
+
+          <!-- Pulsante Indietro Circolare Premium - Alto a Sinistra con le utility di Bootstrap 5 -->
+          <div class="position-absolute top-0 start-0 m-4 z-3">
+            <button 
+              class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm" 
+              @click="tornaIndietro"
+              title="Torna indietro"
+            >
+              ←
+            </button>
+          </div>
+
+          <!-- Badge Categoria Fluttuante - Alto a Destra con le utility di Bootstrap 5 -->
+          <div v-if="ricettaData.categoria" class="position-absolute top-0 end-0 m-4 z-2">
             <span class="badge category-floating-badge text-uppercase px-3 py-2 rounded-pill shadow-sm">
               🍳 {{ ricettaData.categoria }}
             </span>
@@ -18,43 +29,32 @@
         </div>
 
         <div class="card-body p-4 p-md-5">
-          <!-- Intestazione Ricetta allineata a sinistra con flexbox -->
-          <div class="d-flex align-items-center gap-3 mb-4 pb-4 border-bottom border-light-subtle">
-            <!-- Pulsante Indietro Circolare Premium -->
-            <button 
-              class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm flex-shrink-0" 
-              @click="tornaIndietro"
-              title="Torna indietro"
-            >
-              ←
-            </button>
-            
-            <div>
-              <h1 class="recipe-title m-0 text-antracite">{{ ricettaData.titolo || ricettaData.title }}</h1>
-            </div>
+          <!-- Intestazione Ricetta -->
+          <div class="mb-4 pb-4 border-bottom border-light-subtle">
+            <h1 class="recipe-title m-0 text-antracite">{{ ricettaData.titolo || ricettaData.title }}</h1>
           </div>
 
-          <!-- Griglia Info Rapide con Utility Grid e classi Border di Bootstrap -->
+          <!-- Griglia Info Rapide con Utility Grid e classi Border di Bootstrap 5 -->
           <div class="row g-3 mb-5 justify-content-center">
             <div class="col-6 col-md-4">
               <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">⏱</span>
                 <div class="fw-black text-dark fs-5 mt-1">{{ ricettaData.tempo || ricettaData.readyInMinutes || '—' }} min</div>
-                <div class="small text-muted text-uppercase fw-bold tracking-wider" style="font-size: 0.75rem;">Preparazione</div>
+                <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Preparazione</div>
               </div>
             </div>
             <div class="col-6 col-md-4">
               <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">🍽</span>
                 <div class="fw-black text-dark fs-5 mt-1">1 Porzione</div>
-                <div class="small text-muted text-uppercase fw-bold tracking-wider" style="font-size: 0.75rem;">Dosi di Base</div>
+                <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Dosi di Base</div>
               </div>
             </div>
             <div class="col-12 col-md-4">
               <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">🔥</span>
                 <div class="fw-black text-dark fs-5 mt-1">{{ ricettaData.difficolta || ricettaData.difficulty || 'Media' }}</div>
-                <div class="small text-muted text-uppercase fw-bold tracking-wider" style="font-size: 0.75rem;">Difficoltà</div>
+                <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Difficoltà</div>
               </div>
             </div>
           </div>
@@ -124,7 +124,14 @@ const defaultImage = 'https://images.unsplash.com/photo-1495521821757-a1efb67293
 const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 
 const tornaIndietro = () => {
-  if (route.query.from === 'risultati') {
+  const provenienza = route.query.from;
+
+  if (provenienza === 'preferiti') {
+    router.push({ name: 'Home', query: { tab: 'profilo' } });
+    return;
+  }
+
+  if (provenienza === 'risultati') {
     router.push({
       name: 'Home',
       query: {
@@ -133,6 +140,11 @@ const tornaIndietro = () => {
         categoria: route.query.categoria || 'tutte'
       }
     });
+    return;
+  }
+
+  if (provenienza === 'home') {
+    router.push({ name: 'Home', query: { tab: 'ricerca' } });
     return;
   }
 
@@ -219,14 +231,13 @@ watch(() => route.params.id, (newId) => {
 .bg-ingredients { background-color: #FBF9F4; }
 .fw-black { font-weight: 900; }
 
-/* Font styling d'impatto per il titolo della ricetta */
 .recipe-title {
   font-weight: 900;
   letter-spacing: -1px;
   font-size: 2.5rem;
 }
 
-/* Zone di design specifiche non copribili dalle utility standard */
+/* Zone di design specifiche non coperte dalle utility standard di Bootstrap 5 */
 .header-image-zone {
   max-height: 400px;
 }
@@ -236,7 +247,7 @@ watch(() => route.params.id, (newId) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.5) 100%);
 }
 
 .category-floating-badge {
@@ -247,21 +258,22 @@ watch(() => route.params.id, (newId) => {
   box-shadow: 0 4px 12px rgba(255, 94, 20, 0.3);
 }
 
-/* Pulsante Indietro Circolare Premium */
+/* Pulsante Indietro Circolare Premium Fluttuante */
 .btn-back {
   width: 46px;
   height: 46px;
   font-size: 22px;
   font-weight: 700;
   color: #1C1C1C;
-  background-color: #F1EFF4;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
   border: none;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-back:hover {
   background-color: #1C1C1C;
   color: #FFFFFF;
-  transform: translateX(-4px);
+  transform: scale(1.05);
 }
 
 /* Card Metriche Cucina (Animazione di hover leggera) */

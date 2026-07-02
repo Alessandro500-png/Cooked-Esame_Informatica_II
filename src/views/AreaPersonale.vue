@@ -130,15 +130,7 @@
 
     <!-- SEZIONE RICETTE PREFERITE -->
     <div class="row">
-      <div class="col-lg-3 mb-4">
-        <div class="list-group shadow-sm border-0">
-          <button type="button" class="list-group-item list-group-item-action active bg-warning text-white fw-bold rounded-3" style="border-color: #E67E22; background-color: #E67E22;">
-            Ricette Preferite ({{ favorites.length }})
-          </button>
-        </div>
-      </div>
-
-      <div class="col-lg-9">
+      <div class="col-lg-12">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h4 class="fw-bold m-0 text-dark-custom">I tuoi Preferiti</h4>
@@ -146,33 +138,43 @@
           </div>
         </div>
 
-        <div v-if="favorites.length === 0" class="alert alert-light border-0 shadow-sm rounded-4">
+        <div v-if="favorites.length === 0" class="card border-0 shadow-sm rounded-4 overflow-hidden p-4 bg-white">
           <div class="d-flex align-items-center gap-3">
             <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
               <i class="bi bi-heart-fill fs-4"></i>
             </div>
             <div>
-              <h5 class="mb-1">Nessuna ricetta salvata</h5>
+              <h5 class="mb-1 text-dark">Nessuna ricetta salvata</h5>
               <p class="mb-0 text-muted">Salva le tue ricette preferite dalla Home o dalla ricerca per vederle qui.</p>
             </div>
           </div>
         </div>
 
-        <div v-else class="row row-cols-1 row-cols-md-3 g-3">
+        <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
           <div class="col" v-for="recipe in favorites" :key="recipe.id">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 recipe-card" @click="apriDettagli(recipe)">
               <div class="ratio ratio-4x3 position-relative">
                 <img :src="recipe.image" class="card-img-top object-fit-cover" :alt="recipe.title" />
-                <div class="favorite-badge position-absolute top-0 end-0 m-3 d-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm" style="width: 38px; height: 38px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#dc3545" stroke="none" width="20" height="20">
-                    <path d="M20.84 4.61c-1.54-1.54-4.04-1.54-5.58 0L12 7.88 8.74 4.61C7.2 3.07 4.7 3.07 3.16 4.61c-1.54 1.54-1.54 4.04 0 5.58L12 18.11l8.84-8.84c1.54-1.54 1.54-4.04 0-5.58Z" />
+                <button
+                  class="favorite-badge position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm border-0"
+                  style="width: 34px; height: 34px;"
+                  type="button"
+                  @click.stop="rimuoviPreferito(recipe.id)"
+                  title="Rimuovi dai preferiti"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="favorite-heart-icon">
+                    <path d="M12 20s-7-4.8-9.2-8.9C1 8.4 1.9 5.2 4.8 4.1c2.3-.8 4.5.2 6 2.1 1.5-1.9 3.7-2.9 6-2.1 2.9 1.1 3.8 4.3 2 7C19 15.2 12 20 12 20Z" fill="#ff4d67" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                </div>
+                </button>
               </div>
-              <div class="card-body p-3">
-                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">{{ recipe.category || 'Speciale' }}</span>
-                <h5 class="card-title fw-bold text-truncate mb-1">{{ recipe.title }}</h5>
-                <p class="card-text small text-muted text-truncate">Tempo: {{ recipe.readyInMinutes }} min · Porzioni: {{ recipe.servings }}</p>
+              <div class="card-body bg-white p-3 d-flex flex-column justify-content-between">
+                <h5 class="card-title fw-bold m-0 text-truncate" style="color: #2D3436; max-width: 100%;">{{ recipe.title }}</h5>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <small class="text-muted text-truncate" style="max-width: 60%;">Chef {{ recipe.author || recipe.chef || 'Anonimo' }}</small>
+                  <span class="badge rounded-pill border px-2 py-1 small" style="background-color: #F1EFF4; color: #2D3436; border-color: #e2ded6 !important;">
+                    {{ recipe.readyInMinutes || recipe.time || 30 }} min
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -184,6 +186,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { auth, db } from '../firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged, updatePassword } from 'firebase/auth';
@@ -192,6 +195,7 @@ defineProps(['utente']);
 defineEmits(['logout']);
 
 // Stato dell'interfaccia
+const router = useRouter();
 const isModifica = ref(false);
 const staSalvando = ref(false);
 const messaggioErrore = ref('');
@@ -314,9 +318,47 @@ const annullaModifiche = () => {
   };
 };
 
+const rimuoviPreferito = async (recipeId) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    favorites.value = favorites.value.filter((item) => item.id?.toString() !== recipeId?.toString());
+
+    const userDocRef = doc(db, 'utenti', user.uid);
+    await setDoc(userDocRef, { favorites: favorites.value }, { merge: true });
+  } catch (error) {
+    console.error('Errore rimozione preferito:', error);
+  }
+};
+
+const apriDettagli = (recipe) => {
+  if (recipe?.id) {
+    router.push({ name: 'DettagliRicetta', params: { id: recipe.id }, query: { from: 'preferiti' } });
+  }
+};
+
 // Carica i dati al montaggio del componente
 onMounted(() => {
   caricaDatiUtente();
 });
 </script>
+
+<style scoped>
+.favorite-heart-icon {
+  width: 16px;
+  height: 16px;
+  color: #ff4d67;
+}
+
+.recipe-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+</style>
 
