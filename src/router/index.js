@@ -4,7 +4,8 @@ import Login from '../views/Login.vue'
 import DettagliRicetta from '../views/DettagliRicetta.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
+  { path: '/', redirect: '/login' },
+  { path: '/home', name: 'Home', component: Home },
   { path: '/login', name: 'Login', component: Login },
   { path: '/recipe/:id', name: 'DettagliRicetta', component: DettagliRicetta, props: true }
 ]

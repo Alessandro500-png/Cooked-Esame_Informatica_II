@@ -79,10 +79,12 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase.js"; 
 
 const emit = defineEmits(['login-success']);
+const router = useRouter();
 
 const emailInserita = ref('');
 const passwordInserita = ref('');
@@ -95,6 +97,7 @@ const gestisciLogin = () => {
   signInWithEmailAndPassword(auth, emailInserita.value, passwordInserita.value)
     .then((userCredential) => {
       emit('login-success', userCredential.user);
+      router.push({ name: 'Home' });
     })
     .catch((error) => {
       console.error(error);
