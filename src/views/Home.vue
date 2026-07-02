@@ -43,7 +43,6 @@
             Cerca
           </button>
 
-          <!-- TENDINA DEI SUGGERIMENTI BOOTSTRAP -->
           <ul 
             v-if="isFocused && suggerimentiFiltrati.length > 0" 
             class="dropdown-menu show w-100 mt-1 shadow border-0 rounded-3 text-start"
@@ -84,8 +83,8 @@
         
         <div v-if="tabAttiva === 'ricerca'">
           <div class="mb-4 text-start">
-            <h1 class="display-6 mb-2 text-dark" style="font-weight: 800; color: #2D3436;">Cerca la tua Ricetta</h1>
-            <p class="text-secondary fs-6">Seleziona una categoria rapida per iniziare l'ispirazione culinaria</p>
+            <h1 class="display-6 mb-2 text-dark" style="font-weight: 800; color: #2D3436;">Di cosa hai voglia?</h1>
+            <p class="text-secondary fs-6">Scegli la tua ricetta preferita per dare inizio alla creatività</p>
           </div>
 
           <div class="d-flex flex-wrap gap-2 mb-5">
