@@ -33,7 +33,7 @@
             class="form-control rounded-pill border-0 px-5 py-2"
             style="background-color: #F1EFF4; color: #2D3436;"
             @focus="isFocused = true"
-            @blur="setTimeout(() => isFocused = false, 200)"
+            @blur="() => window.setTimeout(() => isFocused = false, 200)"
           />
           <button
             type="submit"
