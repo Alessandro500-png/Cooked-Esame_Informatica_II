@@ -1,257 +1,159 @@
 <template>
-  <div class="page-box">
-    <div class="d-flex flex-column gap-3">
-      <div>
-        <h2>Risultati della Ricerca 📊</h2>
-        <p class="text-secondary mb-2">{{ queryMessage }}</p>
-      </div>
+  <div class="animate-fade-in">
+    <!-- Intestazione dei Risultati -->
+    <div class="mb-4 text-start">
+      <h2 class="fw-extrabold text-antracite display-6 mb-2">
+        Risultati per: <span class="text-orange">"{{ ricercaQuery || 'Tutte' }}"</span>
+      </h2>
+      <p class="text-secondary fs-6">Abbiamo trovato queste ispirazioni culinarie per te</p>
+    </div>
 
-      <div v-if="loading" class="alert alert-primary">
-        Caricamento in corso... cerco le ricette collegate all'API.
+    <!-- Indicatore di caricamento -->
+    <div v-if="caricamento" class="text-center py-5">
+      <div class="spinner-border text-orange" role="status">
+        <span class="visually-hidden">Caricamento...</span>
       </div>
+    </div>
 
-      <div v-else-if="error" class="alert alert-danger">
-        {{ error }}
-      </div>
-
-      <div v-else-if="ricette.length === 0" class="alert alert-warning">
-        Nessuna ricetta trovata. Prova a cercare parole diverse o usa una categoria diversa.
-      </div>
-
-      <div v-else class="row g-4">
-        <div class="col-12 col-md-6 col-lg-4" v-for="recipe in ricette" :key="recipe.id">
-          <div class="card h-100 shadow-sm overflow-hidden">
-            <img
-              :src="recipe.image"
-              class="card-img-top recipe-image"
-              :alt="recipe.title"
-              loading="lazy"
+    <!-- Griglia delle Ricette (Stesso stile della Home) -->
+    <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+      <div 
+        v-for="ricetta in ricetteRisultati" 
+        :key="ricetta.id" 
+        class="col"
+      >
+        <!-- Card interattiva e premium uguale alla Home -->
+        <div 
+          class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100 recipe-card"
+          @click="apriDettagli(ricetta)"
+        >
+          <!-- Zona Immagine -->
+          <div class="ratio ratio-4x3 position-relative bg-light">
+            <img 
+              :src="ricetta.immagine || ricetta.image || defaultImage" 
+              class="w-100 h-100 object-fit-cover" 
+              :alt="ricetta.titolo || ricetta.title" 
             />
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">{{ recipe.title }}</h5>
-              <p class="card-text text-secondary mb-3" v-if="recipe.summary">
-                {{ stripHtml(recipe.summary).slice(0, 140) }}{{ stripHtml(recipe.summary).length > 140 ? '...' : '' }}
-              </p>
-              <div class="mt-auto d-flex flex-wrap gap-2">
-                <span v-if="recipe.dishTypes?.length" class="badge bg-secondary text-white">
-                  {{ recipe.dishTypes[0] }}
-                </span>
-                <span class="badge bg-success text-white">
-                  {{ recipe.readyInMinutes }} min
-                </span>
-                <span class="badge bg-warning text-dark">
-                  {{ recipe.servings }} porzioni
-                </span>
-              </div>
-            </div>
+          </div>
+          
+          <!-- Corpo della Card -->
+          <div class="card-body bg-white p-3">
+            <h5 class="card-title text-antracite fw-bold m-0 text-truncate">
+              {{ ricetta.titolo || ricetta.title }}
+            </h5>
+            <small class="text-muted">
+              {{ ricetta.categoria || 'Ricetta' }}
+            </small>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Schermata di Fallback se non ci sono risultati -->
+    <div v-if="!caricamento && ricetteRisultati.length === 0" class="text-center py-5">
+      <p class="text-muted fs-5">Nessuna ricetta corrisponde alla tua ricerca.</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
-import axios from 'axios';
+import { ref, onMounted, watch } from 'vue';
+import { db } from '../firebase'; // Per il backup locale se finisci i punti
+import { collection, getDocs } from 'firebase/firestore';
 
 const props = defineProps({
   ricercaQuery: { type: String, default: '' },
   categoriaQuery: { type: String, default: 'tutte' }
 });
 
-const ricette = ref([]);
-const loading = ref(false);
-const error = ref('');
+const emit = defineEmits(['seleziona-ricetta']);
 
-const apiKey = import.meta.env.VITE_SPOONACULAR_KEY || '';
+const ricetteRisultati = ref([]);
+const caricamento = ref(false);
+const defaultImage = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=1200';
+const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 
-const translationUsed = ref(false);
-const translatedQuery = ref('');
+// 1. CHIAMATA DIRETTA ALL'API DI SPOONACULAR
+const cercaSuSpoonacular = async (query) => {
+  caricamento.value = true;
+  try {
+    // Chiamata all'endpoint di Spoonacular per cercare le ricette (ne prende 12 come esempio)
+    const resp = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=12&apiKey=${apiKey}`);
+    
+    if (!resp.ok) throw new Error('Limite punti API raggiunto o errore di rete');
+    
+    const data = await resp.json();
+    
+    // Mappiamo i dati per renderli compatibili con le nostre card
+    ricetteRisultati.value = data.results.map(r => ({
+      id: r.id,
+      titolo: r.title,
+      title: r.title,
+      immagine: r.image,
+      image: r.image,
+      categoria: props.categoriaQuery !== 'tutte' ? props.categoriaQuery : 'Spoonacular'
+    }));
+  } catch (error) {
+    console.warn("⚠️ API Spoonacular in errore (forse punti finiti). Uso il database Firebase di backup:", error);
+    // Se l'API fallisce, andiamo a cercare dentro Firebase per non bloccare l'app
+    await cercaSuFirebaseBackup(query);
+  } finally {
+    caricamento.value = false;
+  }
+};
 
-const queryMessage = computed(() => {
-  if (props.ricercaQuery) {
-    if (translationUsed.value && translatedQuery.value && translatedQuery.value !== props.ricercaQuery) {
-      return `Risultati per "${props.ricercaQuery}" (ricerca anche come "${translatedQuery.value}")`;
-    }
-    return `Risultati per "${props.ricercaQuery}"`;
+// 2. BACKUP SU FIREBASE SE L'API CADE O FINISCE I PUNTI
+const cercaSuFirebaseBackup = async (query) => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'ricette'));
+    const temporaneo = [];
+    querySnapshot.forEach((doc) => {
+      const dati = doc.data();
+      const titolo = (dati.titolo || dati.title || '').toLowerCase();
+      if (titolo.includes(query.toLowerCase())) {
+        temporaneo.push({ id: doc.id, ...dati });
+      }
+    });
+    ricetteRisultati.value = temporaneo;
+  } catch (err) {
+    console.error("Errore anche nel database di backup:", err);
   }
-  if (props.categoriaQuery === 'dolci') {
-    return 'Risultati per categoria: dolci';
-  }
-  if (props.categoriaQuery === 'primi') {
-    return 'Risultati per categoria: primi piatti';
-  }
-  if (props.categoriaQuery === 'secondi') {
-    return 'Risultati per categoria: secondi piatti';
-  }
-  return 'Ricette popolari in evidenza';
+};
+
+// Esegui la ricerca all'avvio del componente
+onMounted(() => {
+  cercaSuSpoonacular(props.ricercaQuery);
 });
 
-const buildParams = (searchQuery = '') => {
-  const baseParams = {
-    apiKey,
-    number: 12,
-    addRecipeInformation: true
-  };
+// Monitora se l'utente effettua una nuova ricerca mentre la pagina è già aperta
+watch(() => props.ricercaQuery, (nuovaQuery) => {
+  cercaSuSpoonacular(nuovaQuery);
+});
 
-  if (searchQuery) {
-    return {
-      ...baseParams,
-      query: searchQuery,
-      instructionsRequired: true
-    };
-  }
-
-  if (props.categoriaQuery === 'dolci') {
-    return {
-      ...baseParams,
-      type: 'dessert'
-    };
-  }
-
-  if (props.categoriaQuery === 'primi') {
-    return {
-      ...baseParams,
-      query: 'pasta'
-    };
-  }
-
-  if (props.categoriaQuery === 'secondi') {
-    return {
-      ...baseParams,
-      query: 'meat'
-    };
-  }
-
-  return {
-    ...baseParams,
-    sort: 'popularity'
-  };
+const apriDettagli = (ricetta) => {
+  emit('seleziona-ricetta', ricetta);
 };
-
-const translateQuery = (query) => {
-  const map = {
-    risotto: 'risotto',
-    pasta: 'pasta',
-    lasagne: 'lasagna',
-    pollo: 'chicken',
-    tiramisu: 'tiramisu',
-    spaghetti: 'spaghetti',
-    carne: 'meat',
-    pesce: 'fish',
-    verdure: 'vegetables',
-    insalata: 'salad',
-    formaggio: 'cheese',
-    forno: 'oven',
-    pizza: 'pizza',
-    zuppa: 'soup',
-    dolce: 'dessert',
-    cioccolato: 'chocolate'
-  };
-
-  const normalized = query.trim().toLowerCase();
-  return map[normalized] || normalized;
-};
-
-const buildSearchVariants = (query) => {
-  const normalized = query.trim().toLowerCase();
-  const translated = translateQuery(normalized);
-  const words = normalized.split(/\s+/).filter(Boolean);
-  const translatedWords = words.map((word) => translateQuery(word));
-  const variants = [normalized];
-
-  if (translated && translated !== normalized) {
-    variants.push(translated);
-  }
-
-  const translatedPhrase = translatedWords.join(' ');
-  if (translatedPhrase && translatedPhrase !== normalized && translatedPhrase !== translated) {
-    variants.push(translatedPhrase);
-  }
-
-  if (words.length > 1) {
-    variants.push(...words);
-    variants.push(...translatedWords);
-  }
-
-  return [...new Set(variants)];
-};
-
-const trySearchQueries = async (searchQueries) => {
-  for (const q of searchQueries) {
-    if (!q) continue;
-    const params = buildParams(q);
-    const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', { params });
-    if (response?.data?.results?.length) {
-      return { results: response.data.results, usedQuery: q };
-    }
-  }
-  return { results: [], usedQuery: searchQueries[searchQueries.length - 1] || '' };
-};
-
-const fetchRicette = async () => {
-  loading.value = true;
-  error.value = '';
-  ricette.value = [];
-  translationUsed.value = false;
-  translatedQuery.value = '';
-
-  if (!apiKey) {
-    error.value = 'Chiave API mancante. Verifica il file .env e riavvia l’app.';
-    loading.value = false;
-    return;
-  }
-
-  const searchQuery = props.ricercaQuery?.trim() || '';
-
-  if (!searchQuery) {
-    try {
-      const params = buildParams();
-      const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', { params });
-      ricette.value = response.data?.results || [];
-      return;
-    } catch (err) {
-      const backendMessage = err?.response?.data?.message || err.message || 'Errore imprevisto';
-      error.value = `API Spoonacular: ${backendMessage}`;
-      return;
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  try {
-    const variants = buildSearchVariants(searchQuery);
-    const { results, usedQuery } = await trySearchQueries(variants);
-    ricette.value = results;
-
-    if (usedQuery !== searchQuery) {
-      translationUsed.value = true;
-      translatedQuery.value = usedQuery;
-    }
-  } catch (err) {
-    const backendMessage = err?.response?.data?.message || err.message || 'Errore imprevisto';
-    error.value = `API Spoonacular: ${backendMessage}`;
-  } finally {
-    loading.value = false;
-  }
-};
-
-watch(
-  () => [props.ricercaQuery, props.categoriaQuery],
-  fetchRicette,
-  { immediate: true }
-);
-
-const stripHtml = (html = '') => html.replace(/<[^>]*>/g, '');
 </script>
 
 <style scoped>
-.page-box {
-  padding-top: 1rem;
+.text-antracite { color: #2D3436; }
+.text-orange { color: #FF5E14; }
+.fw-extrabold { font-weight: 800; }
+
+.recipe-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
 }
-.recipe-image {
-  height: 220px;
-  object-fit: cover;
+.recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

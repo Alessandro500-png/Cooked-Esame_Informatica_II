@@ -23,7 +23,7 @@
             <!-- Pulsante Indietro Circolare Premium -->
             <button 
               class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm flex-shrink-0" 
-              @click="$router.back()"
+              @click="tornaIndietro"
               title="Torna indietro"
             >
               ←
@@ -109,10 +109,11 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({ ricetta: { type: Object, default: null }, id: { type: [String, Number], default: null } });
 const route = useRoute();
+const router = useRouter();
 const ricettaData = ref({
   ingredienti: [],
   istruzioni: '',
@@ -121,6 +122,22 @@ const ricettaData = ref({
 });
 const defaultImage = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=1200';
 const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
+
+const tornaIndietro = () => {
+  if (route.query.from === 'risultati') {
+    router.push({
+      name: 'Home',
+      query: {
+        tab: 'risultati',
+        search: route.query.search || '',
+        categoria: route.query.categoria || 'tutte'
+      }
+    });
+    return;
+  }
+
+  router.back();
+};
 
 const caricaDettagli = async (id) => {
   try {

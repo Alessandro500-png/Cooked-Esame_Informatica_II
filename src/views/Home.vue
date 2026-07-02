@@ -29,7 +29,7 @@
           <input 
             type="text" 
             v-model="testoRicerca" 
-            placeholder="Cerca ricette, ingredienti o chef..." 
+            placeholder="Cerca ricette, ingredienti ..." 
             class="form-control rounded-pill border-0 px-5 py-2"
             style="background-color: #F1EFF4; color: #2D3436;"
             @focus="isFocused = true"
@@ -167,7 +167,12 @@
           </div>
         </div>
 
-        <Risultati v-else-if="tabAttiva === 'risultati'" :ricercaQuery="testoRicerca" />
+        <Risultati 
+  v-else-if="tabAttiva === 'risultati'" 
+  :ricercaQuery="testoRicerca" 
+  :categoriaQuery="categoriaAttiva" 
+  @seleziona-ricetta="(ricetta) => mostraDettagli(ricetta)"
+/>
         <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" @logout="$emit('logout')" />
       </main>
     </div>
@@ -176,23 +181,46 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import AreaPersonale from './AreaPersonale.vue';
 import Risultati from './Risultati.vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 defineProps(['utente']);
 defineEmits(['logout']);
 
 const tabAttiva = ref('ricerca');
 const testoRicerca = ref('');
+const categoriaAttiva = ref('tutte');
 
 const ricette = ref([]);
 const caricamentoInCorso = ref(true);
 const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 
+const route = useRoute();
+
+const applicaTabDaRoute = () => {
+  const tab = route.query.tab;
+  if (tab === 'risultati') {
+    tabAttiva.value = 'risultati';
+    if (route.query.search) {
+      testoRicerca.value = String(route.query.search);
+    }
+    if (route.query.categoria) {
+      categoriaAttiva.value = String(route.query.categoria);
+    }
+  } else if (tab === 'ricerca') {
+    tabAttiva.value = 'ricerca';
+  }
+};
+
 onMounted(async () => {
   await caricaRicette();
+  applicaTabDaRoute();
+});
+
+watch(() => route.query.tab, () => {
+  applicaTabDaRoute();
 });
 
 const caricaRicette = async (query = '') => {
@@ -266,7 +294,11 @@ const avviaRicerca = async () => {
 const router = useRouter();
 const mostraDettagli = (ricetta) => {
   if (ricetta?.id) {
-    router.push({ name: 'DettagliRicetta', params: { id: ricetta.id } });
+    const query = tabAttiva.value === 'risultati'
+      ? { from: 'risultati', search: testoRicerca.value, categoria: categoriaAttiva.value }
+      : { from: 'ricerca' };
+
+    router.push({ name: 'DettagliRicetta', params: { id: ricetta.id }, query });
   }
 };
 
