@@ -115,12 +115,22 @@
               style="cursor: pointer;"
             >
               <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                <div class="ratio ratio-4x3">
+                <div class="ratio ratio-4x3 position-relative">
                   <img 
                     :src="ricetta.immagine || ricetta.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500'" 
                     class="card-img-top object-fit-cover" 
                     :alt="ricetta.titolo || ricetta.name || ricetta.title"
                   />
+                  <button
+                    type="button"
+                    class="btn btn-light btn-sm rounded-circle border shadow-sm position-absolute top-0 end-0 mt-n1 me-n1 d-flex align-items-center justify-content-center p-2"
+                    @click.stop="togglePreferito(ricetta)"
+                    :title="isPreferita(ricetta) ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :fill="isPreferita(ricetta) ? '#dc3545' : 'none'" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bi bi-heart">
+                      <path d="M20.84 4.61c-1.54-1.54-4.04-1.54-5.58 0L12 7.88 8.74 4.61C7.2 3.07 4.7 3.07 3.16 4.61c-1.54 1.54-1.54 4.04 0 5.58L12 18.11l8.84-8.84c1.54-1.54 1.54-4.04 0-5.58Z" />
+                    </svg>
+                  </button>
                 </div>
                 <div class="card-body bg-white p-3 d-flex flex-column justify-content-between">
                   <h5 class="card-title fw-bold m-0 text-truncate" style="color: #2D3436; max-width: 100%;">
@@ -151,12 +161,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch, toRef } from 'vue';
 import AreaPersonale from './AreaPersonale.vue';
 import Risultati from './Risultati.vue';
 import { useRouter } from 'vue-router';
+import { auth, db } from '../firebase.js';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-defineProps(['utente']);
+const props = defineProps({ utente: Object });
+const utente = toRef(props, 'utente');
 defineEmits(['logout']);
 
 const tabAttiva = ref('ricerca');
@@ -176,7 +189,7 @@ const categorie = ref([
 ]);
 
 onMounted(async () => {
-  await caricaRicette();
+  await Promise.all([caricaRicette(), caricaPreferiti()]);
 });
 
 const caricaRicette = async (query = '') => {
@@ -248,6 +261,73 @@ const avviaRicerca = async () => {
 };
 
 const router = useRouter();
+const preferite = ref([]);
+const preferitiIds = computed(() => new Set(preferite.value.map((item) => item.id?.toString())));
+
+const caricaPreferiti = async () => {
+  preferite.value = [];
+  const user = utente || auth.currentUser;
+  if (!user?.uid) return;
+
+  try {
+    const userDocRef = doc(db, 'utenti', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      const data = userDocSnap.data();
+      preferite.value = data.favorites || [];
+    }
+  } catch (error) {
+    console.error('Errore caricamento preferiti:', error);
+  }
+};
+
+const salvaPreferiti = async () => {
+  const user = utente || auth.currentUser;
+  if (!user?.uid) return;
+
+  try {
+    const userDocRef = doc(db, 'utenti', user.uid);
+    await setDoc(userDocRef, { favorites: preferite.value }, { merge: true });
+  } catch (error) {
+    console.error('Errore salvataggio preferiti:', error);
+  }
+};
+
+const normalizeRecipe = (recipe) => ({
+  id: recipe.id,
+  title: recipe.title || recipe.titolo || recipe.name || 'Ricetta',
+  image: recipe.image || recipe.immagine || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500',
+  readyInMinutes: recipe.readyInMinutes || recipe.tempo || 0,
+  servings: recipe.servings || 0,
+  dishTypes: recipe.dishTypes || [],
+  summary: recipe.summary || '',
+  category: recipe.category || recipe.categoria || '',
+  author: recipe.autore || recipe.chef || 'Anonimo'
+});
+
+const isPreferita = (ricetta) => preferitiIds.value.has(ricetta.id?.toString());
+
+const togglePreferito = async (ricetta) => {
+  if (!utente?.uid && !auth.currentUser) {
+    alert('Devi accedere per salvare le ricette tra i preferiti.');
+    return;
+  }
+
+  const normalized = normalizeRecipe(ricetta);
+  const id = normalized.id?.toString();
+  if (!id) return;
+
+  if (isPreferita(normalized)) {
+    preferite.value = preferite.value.filter((item) => item.id?.toString() !== id);
+  } else {
+    preferite.value = [...preferite.value, normalized];
+  }
+
+  await salvaPreferiti();
+};
+
+watch(() => utente?.uid, caricaPreferiti, { immediate: true });
+
 const mostraDettagli = (ricetta) => {
   if (ricetta?.id) {
     router.push({ name: 'DettagliRicetta', params: { id: ricetta.id } });
@@ -283,6 +363,3 @@ const selezionaSuggerimento = (nomeRicetta) => {
 };
 // ------------------------------------------
 </script>
-
-<style scoped>
-</style>
