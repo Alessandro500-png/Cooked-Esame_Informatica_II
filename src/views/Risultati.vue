@@ -1,6 +1,5 @@
 <template>
   <div class="animate-fade-in">
-    <!-- Intestazione dei Risultati -->
     <div class="mb-4 text-start">
       <h2 class="fw-extrabold text-antracite display-6 mb-2">
         Risultati per: <span class="text-orange">"{{ ricercaQuery || 'Tutte' }}"</span>
@@ -8,35 +7,23 @@
       <p class="text-secondary fs-6">Abbiamo trovato queste ispirazioni culinarie per te</p>
     </div>
 
-    <!-- Indicatore di caricamento -->
     <div v-if="caricamento" class="text-center py-5">
       <div class="spinner-border text-orange" role="status">
         <span class="visually-hidden">Caricamento...</span>
       </div>
     </div>
 
-    <!-- Griglia delle Ricette (Stesso stile della Home) -->
     <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
-      <div 
-        v-for="ricetta in ricetteRisultati" 
-        :key="ricetta.id" 
-        class="col"
-      >
-        <!-- Card interattiva e premium uguale alla Home -->
-        <div 
-          class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100 recipe-card"
-          @click="apriDettagli(ricetta)"
-        >
-          <!-- Zona Immagine -->
+      <div v-for="ricetta in ricetteRisultati" :key="ricetta.id" class="col">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100 recipe-card" @click="apriDettagli(ricetta)">
           <div class="ratio ratio-4x3 position-relative bg-light">
-            <img 
-              :src="ricetta.immagine || ricetta.image || defaultImage" 
-              class="w-100 h-100 object-fit-cover" 
-              :alt="ricetta.titolo || ricetta.title" 
+            <img
+              :src="ricetta.immagine || ricetta.image || defaultImage"
+              class="w-100 h-100 object-fit-cover"
+              :alt="ricetta.titolo || ricetta.title"
             />
           </div>
-          
-          <!-- Corpo della Card -->
+
           <div class="card-body bg-white p-3">
             <h5 class="card-title text-antracite fw-bold m-0 text-truncate">
               {{ ricetta.titolo || ricetta.title }}
@@ -49,7 +36,6 @@
       </div>
     </div>
 
-    <!-- Schermata di Fallback se non ci sono risultati -->
     <div v-if="!caricamento && ricetteRisultati.length === 0" class="text-center py-5">
       <p class="text-muted fs-5">Nessuna ricetta corrisponde alla tua ricerca.</p>
     </div>
@@ -58,7 +44,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { db } from '../firebase'; // Per il backup locale se finisci i punti
+import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
 const props = defineProps({
@@ -73,19 +59,15 @@ const caricamento = ref(false);
 const defaultImage = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=1200';
 const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 
-// 1. CHIAMATA DIRETTA ALL'API DI SPOONACULAR
-const cercaSuSpoonacular = async (query) => {
+const cercaSuSpoonacular = async (query = '') => {
   caricamento.value = true;
   try {
-    // Chiamata all'endpoint di Spoonacular per cercare le ricette (ne prende 12 come esempio)
-    const resp = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=12&apiKey=${apiKey}`);
-    
+    const resp = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(query)}&number=12&apiKey=${apiKey}`);
+
     if (!resp.ok) throw new Error('Limite punti API raggiunto o errore di rete');
-    
+
     const data = await resp.json();
-    
-    // Mappiamo i dati per renderli compatibili con le nostre card
-    ricetteRisultati.value = data.results.map(r => ({
+    ricetteRisultati.value = (data.results || []).map((r) => ({
       id: r.id,
       titolo: r.title,
       title: r.title,
@@ -94,16 +76,14 @@ const cercaSuSpoonacular = async (query) => {
       categoria: props.categoriaQuery !== 'tutte' ? props.categoriaQuery : 'Spoonacular'
     }));
   } catch (error) {
-    console.warn("⚠️ API Spoonacular in errore (forse punti finiti). Uso il database Firebase di backup:", error);
-    // Se l'API fallisce, andiamo a cercare dentro Firebase per non bloccare l'app
+    console.warn('⚠️ API Spoonacular in errore. Uso il database Firebase di backup:', error);
     await cercaSuFirebaseBackup(query);
   } finally {
     caricamento.value = false;
   }
 };
 
-// 2. BACKUP SU FIREBASE SE L'API CADE O FINISCE I PUNTI
-const cercaSuFirebaseBackup = async (query) => {
+const cercaSuFirebaseBackup = async (query = '') => {
   try {
     const querySnapshot = await getDocs(collection(db, 'ricette'));
     const temporaneo = [];
@@ -116,16 +96,14 @@ const cercaSuFirebaseBackup = async (query) => {
     });
     ricetteRisultati.value = temporaneo;
   } catch (err) {
-    console.error("Errore anche nel database di backup:", err);
+    console.error('Errore anche nel database di backup:', err);
   }
 };
 
-// Esegui la ricerca all'avvio del componente
 onMounted(() => {
   cercaSuSpoonacular(props.ricercaQuery);
 });
 
-// Monitora se l'utente effettua una nuova ricerca mentre la pagina è già aperta
 watch(() => props.ricercaQuery, (nuovaQuery) => {
   cercaSuSpoonacular(nuovaQuery);
 });

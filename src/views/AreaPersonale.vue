@@ -133,52 +133,46 @@
       <div class="col-lg-3 mb-4">
         <div class="list-group shadow-sm border-0">
           <button type="button" class="list-group-item list-group-item-action active bg-warning text-white fw-bold rounded-3" style="border-color: #E67E22; background-color: #E67E22;">
-            Ricette Preferite (3)
+            Ricette Preferite ({{ favorites.length }})
           </button>
         </div>
       </div>
 
       <div class="col-lg-9">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="fw-bold m-0 text-dark-custom">I tuoi Preferiti</h4>
+          <div>
+            <h4 class="fw-bold m-0 text-dark-custom">I tuoi Preferiti</h4>
+            <small class="text-muted">Ricette salvate: {{ favorites.length }}</small>
+          </div>
         </div>
 
-        <div class="row row-cols-1 row-cols-md-3 g-3">
-          <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-              <div class="ratio ratio-4x3 bg-dark text-white d-flex align-items-center justify-content-center">
-                <span class="fw-semibold">Carbonara 🍝</span>
-              </div>
-              <div class="card-body p-3">
-                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">Primo</span>
-                <h5 class="card-title fw-bold text-truncate mb-1">Spaghetti alla Carbonara</h5>
-                <p class="card-text small text-muted text-truncate">La ricetta scientifica perfetta per il professore.</p>
-              </div>
+        <div v-if="favorites.length === 0" class="alert alert-light border-0 shadow-sm rounded-4">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-heart-fill fs-4"></i>
+            </div>
+            <div>
+              <h5 class="mb-1">Nessuna ricetta salvata</h5>
+              <p class="mb-0 text-muted">Salva le tue ricette preferite dalla Home o dalla ricerca per vederle qui.</p>
             </div>
           </div>
+        </div>
 
-          <div class="col">
+        <div v-else class="row row-cols-1 row-cols-md-3 g-3">
+          <div class="col" v-for="recipe in favorites" :key="recipe.id">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-              <div class="ratio ratio-4x3 bg-dark text-white d-flex align-items-center justify-content-center">
-                <span class="fw-semibold">Tiramisù ☕</span>
+              <div class="ratio ratio-4x3 position-relative">
+                <img :src="recipe.image" class="card-img-top object-fit-cover" :alt="recipe.title" />
+                <div class="favorite-badge position-absolute top-0 end-0 m-3 d-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm" style="width: 38px; height: 38px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#dc3545" stroke="none" width="20" height="20">
+                    <path d="M20.84 4.61c-1.54-1.54-4.04-1.54-5.58 0L12 7.88 8.74 4.61C7.2 3.07 4.7 3.07 3.16 4.61c-1.54 1.54-1.54 4.04 0 5.58L12 18.11l8.84-8.84c1.54-1.54 1.54-4.04 0-5.58Z" />
+                  </svg>
+                </div>
               </div>
               <div class="card-body p-3">
-                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">Dolce</span>
-                <h5 class="card-title fw-bold text-truncate mb-1">Tiramisù Classico</h5>
-                <p class="card-text small text-muted text-truncate">Il dolce perfetto per ricaricare le energie post-esame.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-              <div class="ratio ratio-4x3 bg-dark text-white d-flex align-items-center justify-content-center">
-                <span class="fw-semibold">Pizza 🍕</span>
-              </div>
-              <div class="card-body p-3">
-                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">Lievitati</span>
-                <h5 class="card-title fw-bold text-truncate mb-1">Pizza Margherita</h5>
-                <p class="card-text small text-muted text-truncate">Idratazione al 70% con cornicione pronunciato.</p>
+                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning fw-semibold mb-2">{{ recipe.category || 'Speciale' }}</span>
+                <h5 class="card-title fw-bold text-truncate mb-1">{{ recipe.title }}</h5>
+                <p class="card-text small text-muted text-truncate">Tempo: {{ recipe.readyInMinutes }} min · Porzioni: {{ recipe.servings }}</p>
               </div>
             </div>
           </div>
@@ -207,6 +201,7 @@ const messaggioSuccesso = ref('');
 const emailUtente = ref('');
 const nomeUtente = ref('');
 const nuovaPassword = ref('');
+const favorites = ref([]);
 const datiModifica = ref({
   nome: '',
   cognome: '',
@@ -229,6 +224,7 @@ const caricaDatiUtente = async () => {
         if (userDocSnap.exists()) {
           const dati = userDocSnap.data();
           nomeUtente.value = dati.nome || 'Utente';
+          favorites.value = dati.favorites || [];
           datiModifica.value = {
             nome: dati.nome || '',
             cognome: dati.cognome || '',
@@ -239,6 +235,7 @@ const caricaDatiUtente = async () => {
         } else {
           // Se il documento non esiste, crea i dati di base
           nomeUtente.value = 'Nuovo Chef';
+          favorites.value = [];
           datiModifica.value = {
             nome: '',
             cognome: '',

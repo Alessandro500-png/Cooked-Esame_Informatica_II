@@ -33,7 +33,7 @@
             class="form-control rounded-pill border-0 px-5 py-2"
             style="background-color: #F1EFF4; color: #2D3436;"
             @focus="isFocused = true"
-            @blur="setTimeout(() => isFocused = false, 200)"
+            @blur="() => window.setTimeout(() => isFocused = false, 200)"
           />
           <button
             type="submit"
@@ -140,12 +140,22 @@
               style="cursor: pointer;"
             >
               <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                <div class="ratio ratio-4x3">
+                <div class="ratio ratio-4x3 position-relative">
                   <img 
                     :src="ricetta.immagine || ricetta.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500'" 
                     class="card-img-top object-fit-cover" 
                     :alt="ricetta.titolo || ricetta.name || ricetta.title"
                   />
+                  <button
+                    type="button"
+                    class="btn btn-light btn-sm rounded-circle border shadow-sm position-absolute top-0 end-0 mt-n1 me-n1 d-flex align-items-center justify-content-center p-2"
+                    @click.stop="togglePreferito(ricetta)"
+                    :title="isPreferita(ricetta) ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :fill="isPreferita(ricetta) ? '#dc3545' : 'none'" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bi bi-heart">
+                      <path d="M20.84 4.61c-1.54-1.54-4.04-1.54-5.58 0L12 7.88 8.74 4.61C7.2 3.07 4.7 3.07 3.16 4.61c-1.54 1.54-1.54 4.04 0 5.58L12 18.11l8.84-8.84c1.54-1.54 1.54-4.04 0-5.58Z" />
+                    </svg>
+                  </button>
                 </div>
                 <div class="card-body bg-white p-3 d-flex flex-column justify-content-between">
                   <h5 class="card-title fw-bold m-0 text-truncate" style="color: #2D3436; max-width: 100%;">
@@ -185,19 +195,23 @@ import { ref, onMounted, computed, watch } from 'vue';
 import AreaPersonale from './AreaPersonale.vue';
 import Risultati from './Risultati.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { auth, db } from '../firebase.js';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-defineProps(['utente']);
+const props = defineProps(['utente']);
 defineEmits(['logout']);
 
 const tabAttiva = ref('ricerca');
 const testoRicerca = ref('');
 const categoriaAttiva = ref('tutte');
-
 const ricette = ref([]);
 const caricamentoInCorso = ref(true);
 const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
-
 const route = useRoute();
+const router = useRouter();
+
+const preferite = ref([]);
+const preferitiIds = computed(() => new Set(preferite.value.map((item) => item.id?.toString())));
 
 const applicaTabDaRoute = () => {
   const tab = route.query.tab;
@@ -214,20 +228,11 @@ const applicaTabDaRoute = () => {
   }
 };
 
-onMounted(async () => {
-  await caricaRicette();
-  applicaTabDaRoute();
-});
-
-watch(() => route.query.tab, () => {
-  applicaTabDaRoute();
-});
-
 const caricaRicette = async (query = '') => {
   caricamentoInCorso.value = true;
   try {
     const params = new URLSearchParams({
-      apiKey: apiKey,
+      apiKey,
       number: 20,
       instructionsRequired: true,
       addRecipeInformation: true,
@@ -239,16 +244,15 @@ const caricaRicette = async (query = '') => {
     }
 
     const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?${params.toString()}`);
-    
+
     if (!response.ok) throw new Error(`Errore API: ${response.status}`);
-    
+
     const data = await response.json();
-    ricette.value = data.results.map(r => {
-      const tempDiv = document.createElement("div");
+    ricette.value = (data.results || []).map((r) => {
+      const tempDiv = document.createElement('div');
       tempDiv.innerHTML = r.summary || '';
       const summaryTesto = tempDiv.textContent || tempDiv.innerText || '';
-
-      const sommarioBreve = summaryTesto.length > 140 ? summaryTesto.substring(0, 140) + '...' : summaryTesto;
+      const sommarioBreve = summaryTesto.length > 140 ? `${summaryTesto.substring(0, 140)}...` : summaryTesto;
 
       return {
         id: r.id,
@@ -260,7 +264,7 @@ const caricaRicette = async (query = '') => {
         difficolta: r.readyInMinutes ? `${r.readyInMinutes} min` : 'Media',
         autore: r.sourceName || 'Chef Sconosciuto',
         chef: r.sourceName || 'Chef Sconosciuto',
-        sommarioBreve: sommarioBreve,
+        sommarioBreve,
         categoria: r.cuisines?.[0] || 'varia',
         tempo: r.readyInMinutes || 30,
         ingredienti: r.extendedIngredients || [],
@@ -275,23 +279,88 @@ const caricaRicette = async (query = '') => {
   }
 };
 
-const ricettaInEvidenza = computed(() => {
-  return ricette.value.length > 0 ? ricette.value[0] : null;
-});
+const ricettaInEvidenza = computed(() => (ricette.value.length > 0 ? ricette.value[0] : null));
+const altreRicette = computed(() => ricette.value.slice(1));
 
-const altreRicette = computed(() => {
-  return ricette.value.slice(1);
-});
+const avviaRicerca = () => {
+  tabAttiva.value = testoRicerca.value.trim() ? 'risultati' : 'ricerca';
+};
 
-const avviaRicerca = async () => {
-  if (testoRicerca.value.trim()) {
-    tabAttiva.value = 'risultati';
-  } else {
-    tabAttiva.value = 'ricerca';
+const caricaPreferiti = async () => {
+  preferite.value = [];
+  const user = props.utente || auth.currentUser;
+  if (!user?.uid) return;
+
+  try {
+    const userDocRef = doc(db, 'utenti', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      const data = userDocSnap.data();
+      preferite.value = data.favorites || [];
+    }
+  } catch (error) {
+    console.error('Errore caricamento preferiti:', error);
   }
 };
 
-const router = useRouter();
+const salvaPreferiti = async () => {
+  const user = props.utente || auth.currentUser;
+  if (!user?.uid) return;
+
+  try {
+    const userDocRef = doc(db, 'utenti', user.uid);
+    await setDoc(userDocRef, { favorites: preferite.value }, { merge: true });
+  } catch (error) {
+    console.error('Errore salvataggio preferiti:', error);
+  }
+};
+
+const normalizeRecipe = (recipe) => ({
+  id: recipe.id,
+  title: recipe.title || recipe.titolo || recipe.name || 'Ricetta',
+  image: recipe.image || recipe.immagine || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500',
+  readyInMinutes: recipe.readyInMinutes || recipe.tempo || 0,
+  servings: recipe.servings || 0,
+  dishTypes: recipe.dishTypes || [],
+  summary: recipe.summary || '',
+  category: recipe.category || recipe.categoria || '',
+  author: recipe.autore || recipe.chef || 'Anonimo'
+});
+
+const isPreferita = (ricetta) => preferitiIds.value.has(ricetta.id?.toString());
+
+const togglePreferito = async (ricetta) => {
+  if (!props.utente?.uid && !auth.currentUser) {
+    alert('Devi accedere per salvare le ricette tra i preferiti.');
+    return;
+  }
+
+  const normalized = normalizeRecipe(ricetta);
+  const id = normalized.id?.toString();
+  if (!id) return;
+
+  if (isPreferita(normalized)) {
+    preferite.value = preferite.value.filter((item) => item.id?.toString() !== id);
+  } else {
+    preferite.value = [...preferite.value, normalized];
+  }
+
+  await salvaPreferiti();
+};
+
+watch(() => props.utente?.uid, () => {
+  caricaPreferiti();
+}, { immediate: true });
+
+watch(() => route.query.tab, () => {
+  applicaTabDaRoute();
+});
+
+onMounted(async () => {
+  await caricaRicette();
+  applicaTabDaRoute();
+});
+
 const mostraDettagli = (ricetta) => {
   if (ricetta?.id) {
     const query = tabAttiva.value === 'risultati'
@@ -303,7 +372,6 @@ const mostraDettagli = (ricetta) => {
 };
 
 const isFocused = ref(false);
-
 const ricetteSuggerite = ref([
   { id: 1, nome: 'Spaghetti alla Chitarra' },
   { id: 2, nome: 'Filetto alle Erbe' },
@@ -313,7 +381,7 @@ const ricetteSuggerite = ref([
 
 const suggerimentiFiltrati = computed(() => {
   if (!testoRicerca.value) return [];
-  return ricetteSuggerite.value.filter(ricetta =>
+  return ricetteSuggerite.value.filter((ricetta) =>
     ricetta.nome.toLowerCase().includes(testoRicerca.value.toLowerCase())
   );
 });
