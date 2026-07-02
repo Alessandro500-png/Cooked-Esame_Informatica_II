@@ -83,21 +83,45 @@
         
         <div v-if="tabAttiva === 'ricerca'">
           <div class="mb-4 text-start">
-            <h1 class="display-6 mb-2 text-dark" style="font-weight: 800; color: #2D3436;">Di cosa hai voglia?</h1>
+            <h1 class="display-6 mb-2 text-dark fw-bolder" style="color: #2D3436;">Di cosa hai voglia?</h1>
             <p class="text-secondary fs-6">Scegli la tua ricetta preferita per dare inizio alla creatività</p>
           </div>
 
-          <div class="d-flex flex-wrap gap-2 mb-5">
-            <button 
-              v-for="categoria in categorie" 
-              :key="categoria.id"
-              type="button"
-              class="btn rounded-pill px-4 fw-bold shadow-sm border-0"
-              :style="categoriaAttiva === categoria.id ? `background-color: ${categoria.colore}; color: ${categoria.testoColore};` : 'background-color: #ffffff; color: #2D3436;'"
-              @click="categoriaAttiva = categoria.id"
-            >
-              {{ categoria.nome }}
-            </button>
+          <!-- BOX IN EVIDENZA CLICCABILE E ALLINEATO -->
+          <div 
+            v-if="!caricamentoInCorso && ricettaInEvidenza"
+            class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-5 text-white text-start overflow-hidden" 
+            style="background-color: #27AE60; cursor: pointer;"
+            @click="mostraDettagli(ricettaInEvidenza)"
+          >
+            <div class="row align-items-center g-4">
+              <!-- Spazio Immagine allineata verticalmente al centro -->
+              <div class="col-12 col-md-5 col-lg-4 d-flex align-items-center">
+                <div class="ratio ratio-4x3 rounded-3 overflow-hidden shadow-sm w-100">
+                  <img 
+                    :src="ricettaInEvidenza.immagine || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500'" 
+                    class="object-fit-cover w-100 h-100" 
+                    :alt="ricettaInEvidenza.titolo"
+                  />
+                </div>
+              </div>
+              <!-- Spazio Testi -->
+              <div class="col-12 col-md-7 col-lg-8 d-flex flex-column justify-content-center">
+                <div>
+                  <!-- Scritta Gialla con alone/badge trasparente attorno -->
+                  <span class="badge rounded-pill mb-2 px-3 py-2 fw-bold bg-white bg-opacity-10" style="color: #F1C40F; letter-spacing: 0.5px;">
+                    RICETTA IN EVIDENZA
+                  </span>
+                  <h2 class="fw-bold mb-2 display-6">
+                    {{ ricettaInEvidenza.titolo }}
+                  </h2>
+                  <!-- Descrizione mantenuta pulita (senza incitazioni) -->
+                  <p class="fs-5 opacity-90 mb-0">
+                    {{ ricettaInEvidenza.sommarioBreve }} 
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div v-if="caricamentoInCorso" class="text-center py-5">
@@ -106,10 +130,11 @@
             </div>
           </div>
 
+          <!-- RIPRISTINATE TUTTE LE ALTRE RICETTE IN BASSO -->
           <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
             <div 
               class="col" 
-              v-for="ricetta in ricetteFiltrate" 
+              v-for="ricetta in altreRicette" 
               :key="ricetta.id"
               @click="mostraDettagli(ricetta)"
               style="cursor: pointer;"
@@ -129,7 +154,7 @@
                   <div class="d-flex justify-content-between align-items-center mt-3">
                     <small class="text-muted text-truncate" style="max-width: 60%;">Chef {{ ricetta.autore || ricetta.chef || 'Anonimo' }}</small>
                     <span class="badge rounded-pill border px-2 py-1 small" style="background-color: #F1EFF4; color: #2D3436; border-color: #e2ded6 !important;">
-                      {{ ricetta.difficolta || ricetta.difficulty || 'Media' }}
+                      {{ ricetta.difficolta || 'Media' }}
                     </span>
                   </div>
                 </div>
@@ -137,12 +162,12 @@
             </div>
           </div>
 
-          <div v-if="!caricamentoInCorso && ricetteFiltrate.length === 0" class="text-center text-muted py-5">
+          <div v-if="!caricamentoInCorso && ricette.length === 0" class="text-center text-muted py-5">
             Nessun elemento trovato.
           </div>
         </div>
 
-        <Risultati v-else-if="tabAttiva === 'risultati'" :ricercaQuery="testoRicerca" :categoriaQuery="categoriaAttiva" />
+        <Risultati v-else-if="tabAttiva === 'risultati'" :ricercaQuery="testoRicerca" />
         <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" @logout="$emit('logout')" />
       </main>
     </div>
@@ -161,19 +186,10 @@ defineEmits(['logout']);
 
 const tabAttiva = ref('ricerca');
 const testoRicerca = ref('');
-const categoriaAttiva = ref('tutte');
-const ricettaSelezionata = ref(null);
 
 const ricette = ref([]);
 const caricamentoInCorso = ref(true);
 const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
-
-const categorie = ref([
-  { id: 'tutte', nome: 'Tutte', colore: '#2D3436', testoColore: '#ffffff' },
-  { id: 'primi', nome: 'Primi Piatti', tag: 'pasta|main course', colore: '#E67E22', testoColore: '#ffffff' },
-  { id: 'secondi', nome: 'Secondi', tag: 'meat|seafood', colore: '#27AE60', testoColore: '#ffffff' },
-  { id: 'dolci', nome: 'Dolci', tag: 'dessert', colore: '#F1C40F', testoColore: '#2D3436' }
-]);
 
 onMounted(async () => {
   await caricaRicette();
@@ -199,23 +215,30 @@ const caricaRicette = async (query = '') => {
     if (!response.ok) throw new Error(`Errore API: ${response.status}`);
     
     const data = await response.json();
-    ricette.value = data.results.map(r => ({
-      id: r.id,
-      titolo: r.title,
-      name: r.title,
-      title: r.title,
-      immagine: r.image,
-      image: r.image,
-      difficolta: r.difficulty || 'Media',
-      difficulty: r.difficulty || 'Media',
-      autore: r.author || 'Chef Sconosciuto',
-      chef: r.author || 'Chef Sconosciuto',
-      categoria: r.cuisines?.[0] || 'varia',
-      category: r.cuisines?.[0] || 'varia',
-      tempo: r.readyInMinutes || 30,
-      ingredienti: r.extendedIngredients || [],
-      istruzioni: r.instructions || 'Istruzioni non disponibili'
-    }));
+    ricette.value = data.results.map(r => {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = r.summary || '';
+      const summaryTesto = tempDiv.textContent || tempDiv.innerText || '';
+
+      const sommarioBreve = summaryTesto.length > 140 ? summaryTesto.substring(0, 140) + '...' : summaryTesto;
+
+      return {
+        id: r.id,
+        titolo: r.title,
+        name: r.title,
+        title: r.title,
+        immagine: r.image,
+        image: r.image,
+        difficolta: r.readyInMinutes ? `${r.readyInMinutes} min` : 'Media',
+        autore: r.sourceName || 'Chef Sconosciuto',
+        chef: r.sourceName || 'Chef Sconosciuto',
+        sommarioBreve: sommarioBreve,
+        categoria: r.cuisines?.[0] || 'varia',
+        tempo: r.readyInMinutes || 30,
+        ingredienti: r.extendedIngredients || [],
+        istruzioni: r.instructions || 'Istruzioni non disponibili'
+      };
+    });
   } catch (errore) {
     console.error('Errore caricamento ricette:', errore);
     ricette.value = [];
@@ -224,19 +247,12 @@ const caricaRicette = async (query = '') => {
   }
 };
 
-const ricetteFiltrate = computed(() => {
-  if (categoriaAttiva.value === 'tutte') {
-    return ricette.value;
-  }
-  
-  const categoria = categorie.value.find(c => c.id === categoriaAttiva.value);
-  if (!categoria?.tag) return ricette.value;
-  
-  const tags = categoria.tag.split('|');
-  return ricette.value.filter(r => {
-    const cat = (r.categoria || r.category || '').toLowerCase();
-    return tags.some(tag => cat.includes(tag.toLowerCase()));
-  });
+const ricettaInEvidenza = computed(() => {
+  return ricette.value.length > 0 ? ricette.value[0] : null;
+});
+
+const altreRicette = computed(() => {
+  return ricette.value.slice(1);
 });
 
 const avviaRicerca = async () => {
@@ -251,15 +267,11 @@ const router = useRouter();
 const mostraDettagli = (ricetta) => {
   if (ricetta?.id) {
     router.push({ name: 'DettagliRicetta', params: { id: ricetta.id } });
-  } else {
-    ricettaSelezionata.value = ricetta;
-    tabAttiva.value = 'dettagli';
   }
 };
-// --- MODIFICA RICERCA CON SUGGERIMENTI ---
+
 const isFocused = ref(false);
 
-// Esempio di dati per i suggerimenti (da collegare poi al tuo database/Firebase)
 const ricetteSuggerite = ref([
   { id: 1, nome: 'Spaghetti alla Chitarra' },
   { id: 2, nome: 'Filetto alle Erbe' },
@@ -267,7 +279,6 @@ const ricetteSuggerite = ref([
   { id: 4, nome: 'Tiramisù della Casa' }
 ]);
 
-// Filtra i suggerimenti in base a cosa scrive l'utente
 const suggerimentiFiltrati = computed(() => {
   if (!testoRicerca.value) return [];
   return ricetteSuggerite.value.filter(ricetta =>
@@ -275,14 +286,9 @@ const suggerimentiFiltrati = computed(() => {
   );
 });
 
-// Funzione quando si clicca direttamente su un suggerimento della tendina
 const selezionaSuggerimento = (nomeRicetta) => {
   testoRicerca.value = nomeRicetta;
   isFocused.value = false;
-  avviaRicerca(); // Cambia la tab in 'risultati'
+  avviaRicerca();
 };
-// ------------------------------------------
 </script>
-
-<style scoped>
-</style>
