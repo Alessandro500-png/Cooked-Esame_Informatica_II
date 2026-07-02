@@ -148,12 +148,24 @@
                   />
                   <button
                     type="button"
-                    class="btn btn-light btn-sm rounded-circle border shadow-sm position-absolute top-0 end-0 mt-n1 me-n1 d-flex align-items-center justify-content-center p-2"
+                    class="btn btn-light btn-sm rounded-circle border shadow-sm position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center p-0 heart-btn"
                     @click.stop="togglePreferito(ricetta)"
                     :title="isPreferita(ricetta) ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :fill="isPreferita(ricetta) ? '#dc3545' : 'none'" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bi bi-heart">
-                      <path d="M20.84 4.61c-1.54-1.54-4.04-1.54-5.58 0L12 7.88 8.74 4.61C7.2 3.07 4.7 3.07 3.16 4.61c-1.54 1.54-1.54 4.04 0 5.58L12 18.11l8.84-8.84c1.54-1.54 1.54-4.04 0-5.58Z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      class="heart-icon"
+                      :class="isPreferita(ricetta) ? 'heart-filled' : 'heart-outline'"
+                    >
+                      <path
+                        d="M12 20s-7-4.8-9.2-8.9C1 8.4 1.9 5.2 4.8 4.1c2.3-.8 4.5.2 6 2.1 1.5-1.9 3.7-2.9 6-2.1 2.9 1.1 3.8 4.3 2 7C19 15.2 12 20 12 20Z"
+                        :fill="isPreferita(ricetta) ? '#ff4d67' : 'none'"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -392,3 +404,31 @@ const selezionaSuggerimento = (nomeRicetta) => {
   avviaRicerca();
 };
 </script>
+
+<style scoped>
+.heart-btn {
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  color: #6c757d;
+}
+
+.heart-btn:hover {
+  color: #ff4d67;
+  transform: scale(1.05);
+}
+
+.heart-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.heart-outline {
+  color: #6c757d;
+}
+
+.heart-filled {
+  color: #ff4d67;
+}
+</style>
