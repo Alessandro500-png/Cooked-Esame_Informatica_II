@@ -1,82 +1,82 @@
 <template>
   <div class="container py-5">
     <transition name="fade-scale" mode="out-in">
-      <div class="card border-0 shadow-lg rounded-5 overflow-hidden main-recipe-card">
+      <!-- Card principale senza bordi, con ombra grande e angoli super arrotondati -->
+      <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white">
         
-        <!-- Immagine di Copertina con Overlay Sfumato Premium -->
+        <!-- Immagine di Copertina con aspect-ratio nativo di Bootstrap (ratio-21x9) -->
         <div class="ratio ratio-21x9 position-relative header-image-zone">
-          <img :src="ricettaData.immagine || ricettaData.image || defaultImage" class="object-fit-cover w-100 h-100" :alt="ricettaData.titolo || ricettaData.title" />
+          <img :src="ricettaData.immagine || ricettaData.image || defaultImage" class="w-100 h-100 object-fit-cover" :alt="ricettaData.titolo || ricettaData.title" />
           <div class="image-gradient-overlay"></div>
           
-          <!-- Badge Categoria Fluttuante sull'Immagine -->
+          <!-- Badge Categoria fluttuante usando il posizionamento assoluto di Bootstrap -->
           <div v-if="ricettaData.categoria" class="position-absolute bottom-0 start-0 m-4 z-2">
-            <span class="badge category-floating-badge text-uppercase tracking-wider px-3 py-2 rounded-pill">
+            <span class="badge category-floating-badge text-uppercase px-3 py-2 rounded-pill shadow-sm">
               🍳 {{ ricettaData.categoria }}
             </span>
           </div>
         </div>
 
         <div class="card-body p-4 p-md-5">
-          <!-- Intestazione Ricetta -->
-          <div class="d-flex justify-content-between align-items-center gap-3 mb-4 pb-4 border-bottom border-light-subtle">
+          <!-- Intestazione Ricetta allineata a sinistra con flexbox -->
+          <div class="d-flex align-items-center gap-3 mb-4 pb-4 border-bottom border-light-subtle">
+            <!-- Pulsante Indietro Circolare Premium -->
+            <button 
+              class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm flex-shrink-0" 
+              @click="$router.back()"
+              title="Torna indietro"
+            >
+              ←
+            </button>
+            
             <div>
               <h1 class="recipe-title m-0 text-antracite">{{ ricettaData.titolo || ricettaData.title }}</h1>
             </div>
-            <div>
-              <!-- Pulsante Indietro Circolare Premium -->
-              <button 
-                class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm" 
-                @click="$router.back()"
-                title="Torna indietro"
-              >
-                ←
-              </button>
-            </div>
           </div>
 
-          <!-- Griglia Info Rapide con Card Minimali -->
+          <!-- Griglia Info Rapide con Utility Grid e classi Border di Bootstrap -->
           <div class="row g-3 mb-5 justify-content-center">
             <div class="col-6 col-md-4">
-              <div class="info-metric-card p-3 rounded-4 text-center">
-                <span class="metric-icon">⏱</span>
-                <div class="metric-value mt-1">{{ ricettaData.tempo || ricettaData.readyInMinutes || '—' }} min</div>
-                <div class="metric-label">Preparazione</div>
+              <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
+                <span class="fs-3">⏱</span>
+                <div class="fw-black text-dark fs-5 mt-1">{{ ricettaData.tempo || ricettaData.readyInMinutes || '—' }} min</div>
+                <div class="small text-muted text-uppercase fw-bold tracking-wider" style="font-size: 0.75rem;">Preparazione</div>
               </div>
             </div>
             <div class="col-6 col-md-4">
-              <div class="info-metric-card p-3 rounded-4 text-center">
-                <span class="metric-icon">🍽</span>
-                <div class="metric-value mt-1">1 Porzione</div>
-                <div class="metric-label">Dosi di Base</div>
+              <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
+                <span class="fs-3">🍽</span>
+                <div class="fw-black text-dark fs-5 mt-1">1 Porzione</div>
+                <div class="small text-muted text-uppercase fw-bold tracking-wider" style="font-size: 0.75rem;">Dosi di Base</div>
               </div>
             </div>
             <div class="col-12 col-md-4">
-              <div class="info-metric-card p-3 rounded-4 text-center">
-                <span class="metric-icon">🔥</span>
-                <div class="metric-value mt-1">{{ ricettaData.difficolta || ricettaData.difficulty || 'Media' }}</div>
-                <div class="metric-label">Difficoltà</div>
+              <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
+                <span class="fs-3">🔥</span>
+                <div class="fw-black text-dark fs-5 mt-1">{{ ricettaData.difficolta || ricettaData.difficulty || 'Media' }}</div>
+                <div class="small text-muted text-uppercase fw-bold tracking-wider" style="font-size: 0.75rem;">Difficoltà</div>
               </div>
             </div>
           </div>
 
           <!-- Corpo Principale Separato (Ingredienti vs Preparazione) -->
           <div class="row g-5">
-            <!-- Sezione Ingredienti Alternativa (Grid di Card Interattive) -->
+            <!-- Sezione Ingredienti (Grid di Card Interattive) -->
             <div class="col-lg-5">
               <div class="p-4 bg-ingredients rounded-5 h-100 border border-white shadow-sm">
-                <h3 class="section-title mb-4">Ingredienti</h3>
+                <h3 class="section-title mb-4 pb-2">Ingredienti</h3>
                 
-                <div class="ingredients-grid d-flex flex-column gap-2">
+                <div class="d-flex flex-column gap-2">
                   <div 
                     v-for="ing in ricettaData.ingredienti || []" 
                     :key="ing.id || ing.name" 
-                    class="ingredient-premium-row d-flex align-items-center justify-content-between p-3 rounded-4 bg-white shadow-sm border border-light"
+                    class="ingredient-premium-row d-flex align-items-center justify-content-between p-3 rounded-4 bg-white shadow-sm border border-light-subtle"
                   >
                     <div class="d-flex align-items-center gap-3">
-                      <div class="ingredient-dot"></div>
-                      <span class="text-secondary-dark fw-semibold text-capitalize fs-6">{{ ing.name || ing.original }}</span>
+                      <div class="bg-orange rounded-circle shadow-sm" style="width: 6px; height: 6px;"></div>
+                      <span class="text-dark fw-semibold text-capitalize m-0" style="font-size: 0.95rem;">{{ ing.name || ing.original }}</span>
                     </div>
-                    <div class="ingredient-badge px-3 py-1.5 rounded-pill text-orange fw-extrabold shadow-sm">
+                    <div class="ingredient-badge px-3 py-1.5 rounded-pill text-orange fw-black shadow-sm small">
                       {{ ing.measures?.us?.amount ? ing.measures.us.amount + ' ' + (ing.measures.us.unitShort || '') : (ing.amount || '') }}
                     </div>
                   </div>
@@ -91,12 +91,12 @@
             <!-- Sezione Preparazione -->
             <div class="col-lg-7">
               <div class="p-4 rounded-5 h-100">
-                <h3 class="section-title mb-4">Preparazione</h3>
+                <h3 class="section-title mb-4 pb-2">Preparazione</h3>
                 
-                <div class="mt-3 text-muted fs-6 line-height-relaxed instructions-wrapper" v-if="!ricettaData.istruzioni">
+                <div class="mt-3 text-muted fs-6 line-height-relaxed" v-if="!ricettaData.istruzioni">
                   Le istruzioni dettagliate non sono disponibili per questa ricetta.
                 </div>
-                <div v-else v-html="ricettaData.istruzioni" class="instructions-content fs-5 text-secondary-dark"></div>
+                <div v-else v-html="ricettaData.istruzioni" class="instructions-content fs-5 text-dark"></div>
               </div>
             </div>
           </div>
@@ -125,7 +125,9 @@ const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 const caricaDettagli = async (id) => {
   try {
     const resp = await fetch(`https://api.spoonacular.com/recipes/${id}/information?includeNutrition=false&apiKey=${apiKey}`);
-    if (!resp.ok) throw new Error('Errore fetch dettagli');
+    
+    if (!resp.ok) throw new Error('Limite API raggiunto o errore fetch dettagli');
+    
     const data = await resp.json();
     ricettaData.value = {
       id: data.id,
@@ -135,14 +137,35 @@ const caricaDettagli = async (id) => {
       image: data.image,
       tempo: data.readyInMinutes,
       readyInMinutes: data.readyInMinutes,
-      servings: 1, // Impostato forzatamente a 1 come richiesto
+      servings: 1, 
       ingredienti: data.extendedIngredients || [],
       istruzioni: data.instructions || (data.analyzedInstructions?.[0]?.steps?.map(s=>s.step).join('<br/>')) || '',
       categorie: data.cuisines || [],
       categoria: data.cuisines?.[0] || ''
     };
   } catch (e) {
-    console.error('Impossibile caricare dettagli:', e);
+    console.warn('⚠️ Spoonacular API offline o punti finiti. Carico la ricetta di backup per lo sviluppo:', e);
+    
+    ricettaData.value = {
+      id: id,
+      titolo: 'Spaghetti alla Carbonara (Mock)',
+      title: 'Spaghetti alla Carbonara (Mock)',
+      immagine: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=1200',
+      image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=1200',
+      tempo: 25,
+      readyInMinutes: 25,
+      servings: 1,
+      categoria: 'Italian',
+      difficolta: 'Media',
+      ingredienti: [
+        { id: 1, name: 'Spaghetti', amount: 100, measures: { us: { amount: 100, unitShort: 'g' } } },
+        { id: 2, name: 'Guanciale', amount: 50, measures: { us: { amount: 50, unitShort: 'g' } } },
+        { id: 3, name: 'Tuorli d\'uovo', amount: 2, measures: { us: { amount: 2, unitShort: 'pz' } } },
+        { id: 4, name: 'Pecorino Romano', amount: 30, measures: { us: { amount: 30, unitShort: 'g' } } },
+        { id: 5, name: 'Pepe Nero', amount: 1, measures: { us: { amount: 1, unitShort: 'q.b.' } } }
+      ],
+      istruzioni: '<p>1. Taglia il guanciale a listarelle e rosolalo in padella fino a farlo diventare croccante.</p><p>2. Cuoci gli spaghetti in abbondante acqua salata.</p><p>3. In una ciotola, sbatti i tuorli con il pecorino romano e un pizzico di pepe nero.</p><p>4. Scola la pasta al dente direttamente nella padella con il guanciale, spegni il fuoco e unisci il composto di uova e pecorino per creare la crema.</p>'
+    };
   }
 };
 
@@ -172,24 +195,21 @@ watch(() => route.params.id, (newId) => {
 </script>
 
 <style scoped>
-/* Branding Colori & Tipografia */
+/* Colori custom basati sulla vostra palette */
 .text-antracite { color: #1C1C1C; }
 .text-orange { color: #FF5E14; }
-.text-secondary-dark { color: #3A3A3A; }
+.bg-orange { background-color: #FF5E14; }
 .bg-ingredients { background-color: #FBF9F4; }
-.fw-extrabold { font-weight: 800; }
+.fw-black { font-weight: 900; }
 
-.main-recipe-card {
-  background-color: #FFFFFF;
-}
-
+/* Font styling d'impatto per il titolo della ricetta */
 .recipe-title {
   font-weight: 900;
   letter-spacing: -1px;
   font-size: 2.5rem;
 }
 
-/* Copertina sfumata */
+/* Zone di design specifiche non copribili dalle utility standard */
 .header-image-zone {
   max-height: 400px;
 }
@@ -227,38 +247,20 @@ watch(() => route.params.id, (newId) => {
   transform: translateX(-4px);
 }
 
-/* Card Metriche Cucina */
+/* Card Metriche Cucina (Animazione di hover leggera) */
 .info-metric-card {
-  background-color: #FAF8F5;
-  border: 1px solid rgba(0,0,0,0.03);
   transition: transform 0.2s ease;
 }
 .info-metric-card:hover {
   transform: translateY(-2px);
 }
-.metric-icon {
-  font-size: 1.5rem;
-}
-.metric-value {
-  font-weight: 800;
-  color: #1C1C1C;
-  font-size: 1.05rem;
-}
-.metric-label {
-  font-size: 0.75rem;
-  color: #8A8A8A;
-  text-uppercase: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
 
-/* Titoli delle sezioni con indicatore sotto */
+/* Titoli delle sezioni con indicatore di design sotto */
 .section-title {
   font-weight: 800;
   color: #1C1C1C;
   font-size: 1.5rem;
   position: relative;
-  padding-bottom: 10px;
 }
 .section-title::after {
   content: '';
@@ -271,7 +273,7 @@ watch(() => route.params.id, (newId) => {
   border-radius: 10px;
 }
 
-/* UI Nuova per le righe degli Ingredienti */
+/* Effetto Hover Premium sulle righe degli ingredienti */
 .ingredient-premium-row {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -279,22 +281,13 @@ watch(() => route.params.id, (newId) => {
   transform: scale(1.01);
   box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
 }
-.ingredient-dot {
-  width: 6px;
-  height: 6px;
-  background-color: #FF5E14;
-  border-radius: 50%;
-}
 .ingredient-badge {
   background-color: rgba(255, 94, 20, 0.06);
-  font-size: 0.85rem;
 }
 
-/* Render Istruzioni */
+/* Line-height e spaziatura editoriale per il blocco istruzioni v-html */
 .instructions-content {
   line-height: 1.8;
-  font-weight: 400;
-  color: #2D3436;
 }
 .instructions-content :deep(ol), 
 .instructions-content :deep(ul) {
@@ -308,7 +301,7 @@ watch(() => route.params.id, (newId) => {
   margin-bottom: 1.25rem;
 }
 
-/* Transition: fade + slight scale */
+/* Transition Vue per il caricamento */
 .fade-scale-enter-active, .fade-scale-leave-active {
   transition: opacity 280ms ease, transform 280ms ease;
 }
