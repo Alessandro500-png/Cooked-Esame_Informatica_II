@@ -10,33 +10,43 @@
                 <span class="fs-1 fw-bold text-white">{{ nomeUtente.charAt(0).toUpperCase() || 'U' }}</span>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
               <span class="badge rounded-pill bg-success bg-opacity-10 text-success fw-semibold py-1 px-3 mb-2" v-if="!isModifica">Esame informatica</span>
               <h2 class="fw-bold mb-1">{{ nomeUtente || 'Utente' }}</h2>
               <p class="text-muted mb-0">
                 <i class="bi bi-envelope-fill me-1"></i> {{ emailUtente }}
               </p>
             </div>
-            <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-              <button 
-                v-if="!isModifica"
-                @click="isModifica = true" 
-                class="btn btn-warning text-white fw-bold px-4 py-2 rounded-3"
-                style="background-color: #E67E22; border-color: #E67E22;"
-              >
-                <i class="bi bi-pencil-square me-2"></i>Modifica Profilo
-              </button>
+            <div class="col-md-5 text-center text-md-end mt-3 mt-md-0">
+              <div v-if="!isModifica" class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-end">
+                <!-- TASTO MODIFICA PROFILO -->
+                <button 
+                  @click="isModifica = true" 
+                  class="btn text-white fw-bold px-4 py-2 rounded-3 shadow-sm border-0"
+                  style="background-color: #E67E22;"
+                >
+                  <i class="bi bi-pencil-square me-2"></i>Modifica Profilo
+                </button>
+                <!-- TASTO LOGOUT -->
+                <button 
+                  @click="confermaLogout" 
+                  class="btn btn-dark fw-bold px-4 py-2 rounded-3 border-0 shadow-sm d-inline-flex align-items-center justify-content-center"
+                  style="background-color: #2D3436; min-width: 140px;"
+                >
+                  <i class="bi bi-box-arrow-right me-2"></i>Log Out
+                </button>
+              </div>
               <div v-else class="d-flex gap-2 justify-content-center justify-content-md-end">
                 <button 
                   @click="salvaModifiche" 
-                  class="btn btn-success fw-bold px-4 py-2"
+                  class="btn btn-success fw-bold px-4 py-2 rounded-3 shadow-sm"
                   :disabled="staSalvando"
                 >
                   <i class="bi bi-check2 me-2"></i>{{ staSalvando ? 'Salvataggio...' : 'Salva' }}
                 </button>
                 <button 
                   @click="annullaModifiche" 
-                  class="btn btn-secondary fw-bold px-4 py-2"
+                  class="btn btn-secondary fw-bold px-4 py-2 rounded-3 shadow-sm"
                   :disabled="staSalvando"
                 >
                   Annulla
@@ -189,10 +199,10 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { auth, db } from '../firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { onAuthStateChanged, updatePassword } from 'firebase/auth';
+import { onAuthStateChanged, updatePassword, signOut } from 'firebase/auth';
 
 defineProps(['utente']);
-defineEmits(['logout']);
+const emit = defineEmits(['logout']);
 
 // Stato dell'interfaccia
 const router = useRouter();
@@ -214,6 +224,26 @@ const datiModifica = ref({
   citta: ''
 });
 
+// Chiede la conferma, esegue il Log Out su Firebase ed effettua il redirect automatico a Login
+const confermaLogout = async () => {
+  const risposta = confirm("Sei sicuro di voler uscire dal tuo account?");
+  if (risposta) {
+    try {
+      // 1. Eseguiamo il signout da Firebase Authentication
+      await signOut(auth);
+      
+      // 2. Comunichiamo al componente padre l'avvenuta disconnessione
+      emit('logout');
+      
+      // 3. Spostiamo l'utente via router alla vista di Login
+      router.push({ name: 'Login' }); // Assicurati che nel tuo file router il path di Login si chiami esattamente con name: 'Login'
+    } catch (error) {
+      console.error("Errore durante il logout:", error);
+      messaggioErrore.value = "Impossibile disconnettersi. Riprova.";
+    }
+  }
+};
+
 // Carica i dati dell'utente da Firebase
 const caricaDatiUtente = async () => {
   try {
@@ -221,7 +251,6 @@ const caricaDatiUtente = async () => {
       if (user) {
         emailUtente.value = user.email || '';
         
-        // Leggi i dati dal documento Firestore
         const userDocRef = doc(db, 'utenti', user.uid);
         const userDocSnap = await getDoc(userDocRef);
         
@@ -237,7 +266,6 @@ const caricaDatiUtente = async () => {
             citta: dati.citta || ''
           };
         } else {
-          // Se il documento non esiste, crea i dati di base
           nomeUtente.value = 'Nuovo Chef';
           favorites.value = [];
           datiModifica.value = {
@@ -308,7 +336,6 @@ const annullaModifiche = () => {
   messaggioErrore.value = '';
   messaggioSuccesso.value = '';
   nuovaPassword.value = '';
-  // Ricarica i dati precedenti
   datiModifica.value = {
     nome: nomeUtente.value,
     cognome: datiModifica.value.cognome,
@@ -338,7 +365,6 @@ const apriDettagli = (recipe) => {
   }
 };
 
-// Carica i dati al montaggio del componente
 onMounted(() => {
   caricaDatiUtente();
 });
@@ -361,4 +387,3 @@ onMounted(() => {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
 }
 </style>
-
