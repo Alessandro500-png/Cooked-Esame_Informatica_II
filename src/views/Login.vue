@@ -10,20 +10,26 @@
     <div class="spice-ambient orange-glow position-absolute rounded-circle"></div>
     <div class="spice-ambient yellow-glow position-absolute rounded-circle"></div>
 
-    <div class="row w-100 justify-content-center position-relative z-3 px-3">
-      <div class="col-12 col-sm-10 col-md-7 col-lg-5 auth-card bg-white rounded-4 py-5 px-4 px-sm-5 shadow-sm border border-light-subtle">
+    <div class="row w-100 justify-content-center position-relative z-3 px-2 px-sm-3">
+      <!-- Col-12 per mobile-first responsiveness, ampiezza massima ristretta per migliore leggibilità su schermi grandi -->
+      <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 auth-card bg-white rounded-4 py-4 py-sm-5 px-3 px-sm-4 px-md-5 shadow-sm border border-light-subtle">
         
         <header class="mb-5 text-start">
+          <!-- Commento: Header con classi custom per design - text-muted per categorie -->
           <p class="brand-category fw-bold text-muted small text-uppercase tracking-wider m-0 mb-2">Il tuo ricettario</p>
-          <h2 class="brand-logo fw-extrabold text-antracite display-5 m-0">
+          <!-- Commento: H1 per SEO e accessibilità - fw-bold Bootstrap per font weight -->
+          <h1 class="brand-logo fw-extrabold text-antracite lh-1 m-0" id="login-title">
             Cooked<span class="dynamic-dot">.</span>
-          </h2>
+          </h1>
         </header>
         
-        <form @submit.prevent="gestisciLogin" class="d-flex flex-column gap-4">
+        <!-- Commento: Form con aria-labelledby per accessibilità, role esplicito per screen readers -->
+        <form @submit.prevent="gestisciLogin" class="d-flex flex-column gap-4" role="form" aria-labelledby="login-title">
           
+          <!-- Commento: Form group email con aria-describedby collegato a helper text -->
           <div class="form-group">
             <label for="email" class="form-label fw-bold text-antracite small text-uppercase tracking-sm mb-2">Email dello Chef</label>
+            <!-- Commento: aria-label per screen reader, aria-describedby per helper text -->
             <input 
               type="email" 
               v-model="emailInserita" 
@@ -31,21 +37,30 @@
               placeholder="Inserisci la tua email..." 
               id="email"
               class="form-control rounded-3 custom-input py-3 px-3"
+              aria-label="Inserisci la tua email"
+              aria-describedby="email-format"
             />
+            <!-- Commento: Helper text invisibile ma leggibile da screen reader -->
+            <small id="email-format" class="text-muted d-block mt-2">Formato: nome@esempio.com</small>
           </div>
           
+          <!-- Commento: Form group password con toggle mostra/nascondi accessibile -->
           <div class="form-group">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <label for="password" class="form-label fw-bold text-antracite small text-uppercase tracking-sm m-0">Password</label>
+              <!-- Commento: Pulsante con aria-pressed per indicare stato toggle, aria-controls per link al field -->
               <button 
                 type="button" 
-                class="btn btn-link btn-sm text-decoration-none text-muted fw-semibold p-0 minimal-toggle" 
+                class="btn btn-link btn-sm text-decoration-none text-muted fw-semibold p-0 minimal-toggle"
                 @click="mostraPassword = !mostraPassword"
-                tabindex="-1"
+                :aria-pressed="mostraPassword"
+                aria-controls="password"
               >
+                <!-- Commento: Testo varia in base allo stato di mostraPassword -->
                 {{ mostraPassword ? 'Nascondi' : 'Mostra' }}
               </button>
             </div>
+            <!-- Commento: Input password con aria-describedby per requisiti di sicurezza -->
             <input 
               :type="mostraPassword ? 'text' : 'password'" 
               v-model="passwordInserita" 
@@ -53,22 +68,34 @@
               placeholder="Inserisci la tua password..." 
               id="password"
               class="form-control rounded-3 custom-input py-3 px-3"
+              aria-label="Inserisci la tua password"
+              aria-describedby="password-requirements"
             />
+            <!-- Commento: Requisiti password invisibili ma leggibili da screen reader -->
+            <small id="password-requirements" class="text-muted d-block mt-2">Minimo 6 caratteri</small>
           </div>
           
           <div class="text-end mb-3">
+            <!-- Commento: Link con colore custom per design -->
             <a href="#" @click.prevent="recuperaPassword" class="small text-muted text-decoration-none link-subtle">
               Hai smarrito le credenziali?
             </a>
           </div>
           
-          <button type="submit" class="btn btn-antracite w-100 rounded-3 py-3 px-4 fw-bold d-flex justify-content-between align-items-center action-button-premium shadow-sm">
+          <!-- Commento: Pulsante submit con design premium animato -->
+          <button 
+            type="submit" 
+            class="btn btn-antracite w-100 rounded-3 py-3 px-4 fw-bold d-flex justify-content-between align-items-center action-button-premium shadow-sm"
+            aria-label="Accedi al ricettario con le tue credenziali"
+          >
             <span>Accedi al Ricettario</span>
-            <span class="arrow fs-5">→</span>
+            <!-- Commento: Icona nascosta da screen reader -->
+            <span class="arrow fs-5" aria-hidden="true">→</span>
           </button>
         </form>
 
-        <div v-if="messaggioErrore" class="alert alert-danger mt-4 text-center border-0 small py-3 rounded-3" role="alert">
+        <!-- Commento: Alert errore con role alert per immediata notifica a screen reader -->
+        <div v-if="messaggioErrore" class="alert alert-danger mt-4 text-center border-0 small py-3 rounded-3" role="alert" aria-live="assertive">
           {{ messaggioErrore }}
         </div>
         

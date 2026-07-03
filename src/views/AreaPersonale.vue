@@ -1,13 +1,24 @@
 <template>
-  <div class="container py-4">
-    <!-- SEZIONE PROFILO UTENTE -->
-    <div class="row mb-4">
+  <!-- Commento: Container responsivo con padding controllato per mobile-first -->
+  <div class="container-fluid py-3 py-md-4">
+    <!-- Commento: Skip to main link - invisibile ma navigabile da tastiera per accessibilità -->
+    <a href="#profilo-section" class="visually-hidden visually-hidden-focusable">Salta al contenuto principale</a>
+    
+    <!-- SEZIONE PROFILO UTENTE: Responsive layout con Bootstrap -->
+    <div class="row mb-4" id="profilo-section">
       <div class="col-12">
-        <div class="card rounded-4 border-0 shadow-sm p-4 text-center text-md-start">
-          <div class="row align-items-center">
-            <div class="col-md-2 mb-3 mb-md-0 text-center">
-              <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center shadow mx-auto" style="width: 90px; height: 90px;">
-                <span class="fs-1 fw-bold text-white">{{ nomeUtente.charAt(0).toUpperCase() || 'U' }}</span>
+        <!-- Commento: Card con padding responsive p-3 p-md-4 per adattarsi ai breakpoint -->
+        <div class="card rounded-4 border-0 shadow-sm p-3 p-md-4">
+          <div class="row align-items-center g-3 g-md-4">
+            <!-- Commento: Avatar responsivo con dimensioni fisse ma allineate bene -->
+            <div class="col-12 col-sm-auto mb-2 mb-sm-0 text-center text-sm-start">
+              <div 
+                class="rounded-circle bg-warning d-flex align-items-center justify-content-center shadow" 
+                style="width: 80px; height: 80px;"
+                role="img"
+                :aria-label="`Avatar di ${nomeUtente || 'Utente'}`"
+              >
+                <span class="fs-3 fw-bold text-white">{{ nomeUtente.charAt(0).toUpperCase() || 'U' }}</span>
               </div>
             </div>
             <div class="col-md-5">
@@ -18,36 +29,45 @@
               </p>
             </div>
             <div class="col-md-5 text-center text-md-end mt-3 mt-md-0">
+              <!-- Commento: Pulsante Modifica con aria-label per accessibilità -->
               <div v-if="!isModifica" class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-end">
-                <!-- TASTO MODIFICA PROFILO -->
+                <!-- Commento: Pulsante modifica profilo con colore Bootstrap personalizzato (E67E22) -->
                 <button 
                   @click="isModifica = true" 
                   class="btn text-white fw-bold px-4 py-2 rounded-3 shadow-sm border-0"
                   style="background-color: #E67E22;"
+                  aria-label="Modifica il tuo profilo e i tuoi dati"
                 >
-                  <i class="bi bi-pencil-square me-2"></i>Modifica Profilo
+                  <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Modifica Profilo
                 </button>
-                <!-- TASTO LOGOUT -->
+                <!-- Commento: Pulsante logout con Bootstrap btn-dark -->
                 <button 
                   @click="confermaLogout" 
                   class="btn btn-dark fw-bold px-4 py-2 rounded-3 border-0 shadow-sm d-inline-flex align-items-center justify-content-center"
                   style="background-color: #2D3436; min-width: 140px;"
+                  aria-label="Esci dal tuo account"
                 >
-                  <i class="bi bi-box-arrow-right me-2"></i>Log Out
+                  <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Log Out
                 </button>
               </div>
-              <div v-else class="d-flex gap-2 justify-content-center justify-content-md-end">
+              <!-- Commento: Pulsanti Salva/Annulla con aria-busy per stato di salvataggio -->
+              <div v-else class="d-flex gap-2 justify-content-center justify-content-md-end flex-wrap">
+                <!-- Commento: Pulsante salva con aria-busy per indicare stato di caricamento -->
                 <button 
                   @click="salvaModifiche" 
-                  class="btn btn-success fw-bold px-4 py-2 rounded-3 shadow-sm"
+                  class="btn btn-success fw-bold px-4 py-2 rounded-3"
                   :disabled="staSalvando"
+                  :aria-busy="staSalvando"
+                  aria-label="Salva le modifiche al profilo"
                 >
-                  <i class="bi bi-check2 me-2"></i>{{ staSalvando ? 'Salvataggio...' : 'Salva' }}
+                  <i class="bi bi-check2 me-2" aria-hidden="true"></i>{{ staSalvando ? 'Salvataggio...' : 'Salva' }}
                 </button>
+                <!-- Commento: Pulsante annulla con aria-label -->
                 <button 
                   @click="annullaModifiche" 
-                  class="btn btn-secondary fw-bold px-4 py-2 rounded-3 shadow-sm"
+                  class="btn btn-outline-secondary fw-bold px-4 py-2 rounded-3"
                   :disabled="staSalvando"
+                  aria-label="Annulla le modifiche"
                 >
                   Annulla
                 </button>
@@ -56,132 +76,150 @@
           </div>
         </div>
 
-        <!-- FORM DI MODIFICA -->
-        <div v-if="isModifica" class="card border-0 shadow-sm p-4 mt-4">
+        <!-- Commento: Form modifica dati con layout responsivo grid con g-3 gap -->
+        <div v-if="isModifica" class="card border-0 shadow-sm p-3 p-md-4 mt-4">
           <h5 class="fw-bold mb-4 text-dark">Modifica i tuoi dati</h5>
           
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="nome" class="form-label fw-bold text-dark">Nome</label>
+          <!-- Commento: Form grid con col-md per responsive su tablet/desktop -->
+          <div class="row g-3 g-md-4">
+            <!-- Commento: Campo nome con label collegato via id -->
+            <div class="col-12 col-md-6">
+              <label for="nome" class="form-label fw-bold text-dark small">Nome</label>
               <input 
                 type="text" 
                 v-model="datiModifica.nome" 
                 id="nome"
-                class="form-control rounded-3 border-secondary-subtle bg-light"
+                class="form-control rounded-3"
                 placeholder="Il tuo nome"
               />
             </div>
             
-            <div class="col-md-6">
-              <label for="cognome" class="form-label fw-bold text-dark">Cognome</label>
+            <!-- Commento: Campo cognome responsivo -->
+            <div class="col-12 col-md-6">
+              <label for="cognome" class="form-label fw-bold text-dark small">Cognome</label>
               <input 
                 type="text" 
                 v-model="datiModifica.cognome" 
                 id="cognome"
-                class="form-control rounded-3 border-secondary-subtle bg-light"
+                class="form-control rounded-3"
                 placeholder="Il tuo cognome"
               />
             </div>
 
+            <!-- Commento: Campo bio a tutta larghezza con textarea -->
             <div class="col-12">
-              <label for="bio" class="form-label fw-bold text-dark">Bio / Specialità</label>
+              <label for="bio" class="form-label fw-bold text-dark small">Bio / Specialità</label>
               <textarea 
                 v-model="datiModifica.bio" 
                 id="bio"
-                class="form-control rounded-3 border-secondary-subtle bg-light"
+                class="form-control rounded-3"
                 rows="3"
                 placeholder="Descrivi i tuoi piatti preferiti..."
               ></textarea>
             </div>
 
-            <div class="col-md-6">
-              <label for="telefono" class="form-label fw-bold text-dark">Telefono (facoltativo)</label>
+            <!-- Commento: Telefono con col-md-6 per layout 2 colonne -->
+            <div class="col-12 col-md-6">
+              <label for="telefono" class="form-label fw-bold text-dark small">Telefono (facoltativo)</label>
               <input 
                 type="tel" 
                 v-model="datiModifica.telefono" 
                 id="telefono"
-                class="form-control rounded-3 border-secondary-subtle bg-light"
+                class="form-control rounded-3"
                 placeholder="+39 3xx xxxx xxxx"
               />
             </div>
 
-            <div class="col-md-6">
-              <label for="citta" class="form-label fw-bold text-dark">Città (facoltativo)</label>
+            <!-- Commento: Città responsiva accanto a telefono -->
+            <div class="col-12 col-md-6">
+              <label for="citta" class="form-label fw-bold text-dark small">Città (facoltativo)</label>
               <input 
                 type="text" 
                 v-model="datiModifica.citta" 
                 id="citta"
-                class="form-control rounded-3 border-secondary-subtle bg-light"
+                class="form-control rounded-3"
                 placeholder="La tua città"
               />
             </div>
 
+            <!-- Commento: Campo password nascosto con placeholder chiaro -->
             <div class="col-12">
-              <label for="password" class="form-label fw-bold text-dark">Nuova password</label>
+              <label for="password" class="form-label fw-bold text-dark small">Nuova password</label>
               <input 
                 type="password" 
                 v-model="nuovaPassword" 
                 id="password"
-                class="form-control rounded-3 border-secondary-subtle bg-light"
+                class="form-control rounded-3"
                 placeholder="Lascia vuoto se non vuoi cambiarla"
               />
             </div>
           </div>
 
-          <div v-if="messaggioErrore" class="alert alert-danger mt-3 border-0 small py-2 rounded-3">
+          <!-- Commento: Messaggi di feedback con role alert per screen reader -->
+          <div v-if="messaggioErrore" class="alert alert-danger mt-3 border-0 small py-2 rounded-3" role="alert">
             {{ messaggioErrore }}
           </div>
-          <div v-if="messaggioSuccesso" class="alert alert-success mt-3 border-0 small py-2 rounded-3">
+          <div v-if="messaggioSuccesso" class="alert alert-success mt-3 border-0 small py-2 rounded-3" role="status">
             {{ messaggioSuccesso }}
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SEZIONE RICETTE PREFERITE -->
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- SEZIONE RICETTE PREFERITE: Layout responsivo -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <!-- Commento: Header sezione preferiti con conteggio ricette -->
+        <div class="d-flex justify-content-between align-items-center mb-3 mb-md-4">
           <div>
-            <h4 class="fw-bold m-0 text-dark-custom">I tuoi Preferiti</h4>
+            <h4 class="fw-bold m-0 text-dark">I tuoi Preferiti</h4>
             <small class="text-muted">Ricette salvate: {{ favorites.length }}</small>
           </div>
         </div>
 
-        <div v-if="favorites.length === 0" class="card border-0 shadow-sm rounded-4 overflow-hidden p-4 bg-white">
-          <div class="d-flex align-items-center gap-3">
-            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-              <i class="bi bi-heart-fill fs-4"></i>
+        <!-- Commento: Card vuota se nessuna ricetta salvata - con layout flessibile -->
+        <div v-if="favorites.length === 0" class="card border-0 shadow-sm rounded-4 overflow-hidden p-3 p-md-4 bg-white">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+              <i class="bi bi-heart-fill fs-4" aria-hidden="true"></i>
             </div>
             <div>
               <h5 class="mb-1 text-dark">Nessuna ricetta salvata</h5>
-              <p class="mb-0 text-muted">Salva le tue ricette preferite dalla Home o dalla ricerca per vederle qui.</p>
+              <p class="mb-0 text-muted small">Salva le tue ricette preferite dalla Home per vederle qui.</p>
             </div>
           </div>
         </div>
 
-        <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+        <!-- Commento: Griglia ricette con row-cols responsivo (1 su mobile, 2 su sm, 3 su md, 4 su lg) -->
+        <div v-else class="row g-3 g-md-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+          <!-- Commento: Card ricetta singola per loop con chiave unica -->
           <div class="col" v-for="recipe in favorites" :key="recipe.id">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 recipe-card" @click="apriDettagli(recipe)">
-              <div class="ratio ratio-4x3 position-relative">
-                <img :src="recipe.image" class="card-img-top object-fit-cover" :alt="recipe.title" />
+            <!-- Commento: Card con overflow hidden, h-100 per uguale altezza, cursor pointer -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100" style="cursor: pointer;" @click="apriDettagli(recipe)">
+              <!-- Commento: Ratio container 4x3 con posizione relativa per bottone assoluto -->
+              <div class="ratio ratio-4x3 position-relative bg-light">
+                <!-- Commento: Immagine con alt text descrittivo per accessibilità -->
+                <img :src="recipe.image" class="card-img-top object-fit-cover" :alt="`${recipe.title} - ricetta di ${recipe.author || recipe.chef || 'Chef Anonimo'}`" />
+                <!-- Commento: Bottone rimuovi dai preferiti con aria-label esplicito -->
                 <button
-                  class="favorite-badge position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm border-0"
-                  style="width: 34px; height: 34px;"
+                  class="btn position-absolute top-0 end-0 m-2 rounded-circle bg-white shadow-sm border-0 d-flex align-items-center justify-content-center"
+                  style="width: 36px; height: 36px; padding: 0;"
                   type="button"
                   @click.stop="rimuoviPreferito(recipe.id)"
-                  title="Rimuovi dai preferiti"
+                  :aria-label="`Rimuovi ${recipe.title} dai preferiti`"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="favorite-heart-icon">
-                    <path d="M12 20s-7-4.8-9.2-8.9C1 8.4 1.9 5.2 4.8 4.1c2.3-.8 4.5.2 6 2.1 1.5-1.9 3.7-2.9 6-2.1 2.9 1.1 3.8 4.3 2 7C19 15.2 12 20 12 20Z" fill="#ff4d67" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
+                  <i class="bi bi-heart-fill text-danger" aria-hidden="true"></i>
                 </button>
               </div>
+              <!-- Commento: Body card con info ricetta e flexbox per allineamento -->
               <div class="card-body bg-white p-3 d-flex flex-column justify-content-between">
-                <h5 class="card-title fw-bold m-0 text-truncate" style="color: #2D3436; max-width: 100%;">{{ recipe.title }}</h5>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <small class="text-muted text-truncate" style="max-width: 60%;">Chef {{ recipe.author || recipe.chef || 'Anonimo' }}</small>
-                  <span class="badge rounded-pill border px-2 py-1 small" style="background-color: #F1EFF4; color: #2D3436; border-color: #e2ded6 !important;">
+                <!-- Commento: Titolo ricetta truncato su una linea -->
+                <h5 class="card-title fw-bold m-0 text-truncate text-dark">{{ recipe.title }}</h5>
+                <!-- Commento: Footer card con Chef e tempo di preparazione -->
+                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                  <small class="text-muted text-truncate" style="min-width: 0;">Chef {{ recipe.author || recipe.chef || 'Anonimo' }}</small>
+                  <!-- Commento: Badge tempo con border Bootstrap standard -->
+                  <span class="badge rounded-pill border px-2 py-1 small border-secondary text-dark">
                     {{ recipe.readyInMinutes || recipe.time || 30 }} min
                   </span>
                 </div>
