@@ -106,7 +106,7 @@ const gestisciLogin = () => {
 };
 
 const recuperaPassword = () => { 
-  alert("Contatta il capo brigata per resettare la chiave d'accesso!"); 
+  alert("Contatta la cucina per ritrovare le tue credenziali!"); 
 };
 </script>
 
