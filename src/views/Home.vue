@@ -78,8 +78,9 @@
       </div>
     </header>
 
+    <!-- Commento: Container responsivo con padding dinamico per mobile-first -->
     <div class="pt-5 mt-4">
-      <main class="container py-4 py-md-5">
+      <main class="container-fluid py-3 py-md-4 px-2 px-sm-3 px-md-4">
         
         <div v-if="tabAttiva === 'ricerca'">
           <div class="mb-4 text-start">
@@ -87,15 +88,16 @@
             <p class="text-secondary fs-6">Scegli la tua ricetta preferita per dare inizio alla creatività</p>
           </div>
 
-          <!-- BOX IN EVIDENZA CLICCABILE E ALLINEATO -->
+          <!-- Commento: Box evidenza ricetta con layout responsive e gap dinamico -->
           <div 
             v-if="!caricamentoInCorso && ricettaInEvidenza"
-            class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-5 text-white text-start overflow-hidden" 
+            class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 mb-md-5 text-white text-start overflow-hidden" 
             style="background-color: #27AE60; cursor: pointer;"
             @click="mostraDettagli(ricettaInEvidenza)"
           >
-            <div class="row align-items-center g-4">
-              <!-- Spazio Immagine allineata verticalmente al centro -->
+            <!-- Commento: Row con gap responsivo per spacing dinamico -->
+            <div class="row align-items-center g-3 g-md-4">
+              <!-- Commento: Immagine responsive col-12 su mobile, col-md-5 su tablet -->
               <div class="col-12 col-md-5 col-lg-4 d-flex align-items-center">
                 <div class="ratio ratio-4x3 rounded-3 overflow-hidden shadow-sm w-100">
                   <img 

@@ -1,5 +1,6 @@
 <template>
-  <div class="container py-5 position-relative">
+  <!-- Commento: Container responsivo con padding dinamico per coerenza con altre pagine -->
+  <div class="container-fluid py-3 py-md-4 px-2 px-sm-3 px-md-4 position-relative">
     <transition name="fade-scale" mode="out-in">
       <!-- Card principale con angoli super arrotondati (rounded-5) e ombra grande -->
       <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white">
@@ -28,16 +29,18 @@
           </div>
         </div>
 
-        <div class="card-body p-4 p-md-5">
+        <!-- Commento: Body card con padding responsive p-3 p-md-4 per mobile-first -->
+        <div class="card-body p-3 p-md-4 p-lg-5">
           <!-- Intestazione Ricetta -->
           <div class="mb-4 pb-4 border-bottom border-light-subtle">
             <h1 class="recipe-title m-0 text-antracite">{{ ricettaData.titolo || ricettaData.title }}</h1>
           </div>
 
-          <!-- Griglia Info Rapide con Utility Grid e classi Border di Bootstrap 5 -->
-          <div class="row g-3 mb-5 justify-content-center">
+          <!-- Commento: Griglia info rapide con gap responsivo g-3 g-md-4 -->
+          <div class="row g-2 g-md-3 mb-4 mb-md-5 justify-content-center">
+            <!-- Commento: Card info tempo con padding responsivo -->
             <div class="col-6 col-md-4">
-              <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
+              <div class="p-2 p-md-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">⏱</span>
                 <div class="fw-black text-dark fs-5 mt-1">{{ ricettaData.tempo || ricettaData.readyInMinutes || '—' }} min</div>
                 <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Preparazione</div>
@@ -59,8 +62,8 @@
             </div>
           </div>
 
-          <!-- Corpo Principale Separato (Ingredienti vs Preparazione) -->
-          <div class="row g-5">
+          <!-- Commento: Row principale con gap responsivo per ingredienti e preparazione -->
+          <div class="row g-3 g-md-4 g-lg-5">
             <!-- Sezione Ingredienti (Grid di Card Interattive) -->
             <div class="col-lg-5">
               <div class="p-4 bg-ingredients rounded-5 h-100 border border-white shadow-sm">

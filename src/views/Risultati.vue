@@ -1,6 +1,8 @@
 <template>
-  <div class="animate-fade-in">
-    <div class="mb-4 text-start">
+  <!-- Commento: Container responsivo con padding coerente al resto del sito -->
+  <div class="animate-fade-in px-2 px-sm-3 px-md-4">
+    <!-- Commento: Header sezione con margin responsivo -->
+    <div class="mb-3 mb-md-4 text-start">
       <h2 class="fw-extrabold text-antracite display-6 mb-2">
         Risultati per: <span class="text-orange">"{{ ricercaQuery || 'Tutte' }}"</span>
       </h2>
@@ -13,9 +15,12 @@
       </div>
     </div>
 
-    <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+    <!-- Commento: Griglia ricette con row-cols responsivo e gap dinamico g-3 g-md-4 -->
+    <div v-else class="row g-3 g-md-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
       <div v-for="ricetta in ricetteRisultati" :key="ricetta.id" class="col">
+        <!-- Commento: Card ricetta con h-100 per uguale altezza in griglia -->
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100 recipe-card" @click="apriDettagli(ricetta)">
+          <!-- Commento: Ratio container 4x3 responsive con bg-light -->
           <div class="ratio ratio-4x3 position-relative bg-light">
             <img
               :src="ricetta.immagine || ricetta.image || defaultImage"
@@ -24,7 +29,8 @@
             />
           </div>
 
-          <div class="card-body bg-white p-3">
+          <!-- Commento: Body card con padding responsive p-2 p-md-3 -->
+          <div class="card-body bg-white p-2 p-md-3">
             <h5 class="card-title text-antracite fw-bold m-0 text-truncate">
               {{ ricetta.titolo || ricetta.title }}
             </h5>
