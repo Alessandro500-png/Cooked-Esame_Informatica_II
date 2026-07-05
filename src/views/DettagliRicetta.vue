@@ -1,5 +1,4 @@
 <template>
-  
   <div class="container-fluid py-3 py-md-4 px-2 px-sm-3 px-md-4 position-relative">
     <transition name="fade-scale" mode="out-in">
       
@@ -7,7 +6,7 @@
         
         
         <div class="ratio ratio-21x9 position-relative header-image-zone">
-          <img :src="ricettaData.immagine || ricettaData.image || defaultImage" class="w-100 h-100 object-fit-cover" :alt="ricettaData.titolo || ricettaData.title" />
+          <img :src="ricettaData.immagine || defaultImage" class="w-100 h-100 object-fit-cover" :alt="ricettaData.titolo" />
           <div class="image-gradient-overlay"></div>
 
           
@@ -33,7 +32,7 @@
         <div class="card-body p-3 p-md-4 p-lg-5">
           
           <div class="mb-4 pb-4 border-bottom border-light-subtle">
-            <h1 class="display-5 fw-bolder text-dark m-0 lh-1">{{ ricettaData.titolo || ricettaData.title }}</h1>
+            <h1 class="display-5 fw-bolder text-dark m-0 lh-1">{{ ricettaData.titolo }}</h1>
           </div>
 
           
@@ -42,7 +41,7 @@
             <div class="col-6 col-md-4">
               <div class="p-2 p-md-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">⏱</span>
-                <div class="fw-bolder text-dark fs-5 mt-1">{{ ricettaData.tempo || ricettaData.readyInMinutes || '—' }} min</div>
+                <div class="fw-bolder text-dark fs-5 mt-1">{{ ricettaData.tempo || '—' }} min</div>
                 <div class="small text-muted text-uppercase fw-bold">Preparazione</div>
               </div>
             </div>
@@ -56,7 +55,7 @@
             <div class="col-12 col-md-4">
               <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">🔥</span>
-                <div class="fw-bolder text-dark fs-5 mt-1">{{ ricettaData.difficolta || ricettaData.difficulty || 'Media' }}</div>
+                <div class="fw-bolder text-dark fs-5 mt-1">{{ ricettaData.difficolta || 'Media' }}</div>
                 <div class="small text-muted text-uppercase fw-bold">Difficoltà</div>
               </div>
             </div>
@@ -114,15 +113,21 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+const normalizzaRicetta = (dati = {}) => ({
+  ...dati,
+  titolo: dati.titolo || dati.title || '',
+  immagine: dati.immagine || dati.image || '',
+  tempo: dati.tempo || dati.readyInMinutes || '',
+  difficolta: dati.difficolta || dati.difficulty || '',
+  ingredienti: dati.ingredienti || [],
+  istruzioni: dati.istruzioni || '',
+  categoria: dati.categoria || dati.category || ''
+});
+
 const props = defineProps({ ricetta: { type: Object, default: null }, id: { type: [String, Number], default: null } });
 const route = useRoute();
 const router = useRouter();
-const ricettaData = ref({
-  ingredienti: [],
-  istruzioni: '',
-  categoria: '',
-  ...props.ricetta
-});
+const ricettaData = ref(normalizzaRicetta({ ingredienti: [], istruzioni: '', categoria: '', ...(props.ricetta || {}) }));
 const defaultImage = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=1200';
 const apiKey = import.meta.env.VITE_SPOONACULAR_KEY;
 
@@ -161,43 +166,18 @@ const caricaDettagli = async (id) => {
     if (!resp.ok) throw new Error('Limite API raggiunto o errore fetch dettagli');
     
     const data = await resp.json();
-    ricettaData.value = {
+    ricettaData.value = normalizzaRicetta({
       id: data.id,
       titolo: data.title,
-      title: data.title,
       immagine: data.image,
-      image: data.image,
       tempo: data.readyInMinutes,
-      readyInMinutes: data.readyInMinutes,
-      servings: 1, 
+      servings: 1,
       ingredienti: data.extendedIngredients || [],
       istruzioni: data.instructions || (data.analyzedInstructions?.[0]?.steps?.map(s=>s.step).join('<br/>')) || '',
-      categorie: data.cuisines || [],
       categoria: data.cuisines?.[0] || ''
-    };
+    });
   } catch (e) {
     console.warn('⚠️ Spoonacular API offline o punti finiti. Carico la ricetta di backup per lo sviluppo:', e);
-    
-    ricettaData.value = {
-      id: id,
-      titolo: 'Spaghetti alla Carbonara (Mock)',
-      title: 'Spaghetti alla Carbonara (Mock)',
-      immagine: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=1200',
-      image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=1200',
-      tempo: 25,
-      readyInMinutes: 25,
-      servings: 1,
-      categoria: 'Italian',
-      difficolta: 'Media',
-      ingredienti: [
-        { id: 1, name: 'Spaghetti', amount: 100, measures: { us: { amount: 100, unitShort: 'g' } } },
-        { id: 2, name: 'Guanciale', amount: 50, measures: { us: { amount: 50, unitShort: 'g' } } },
-        { id: 3, name: 'Tuorli d\'uovo', amount: 2, measures: { us: { amount: 2, unitShort: 'pz' } } },
-        { id: 4, name: 'Pecorino Romano', amount: 30, measures: { us: { amount: 30, unitShort: 'g' } } },
-        { id: 5, name: 'Pepe Nero', amount: 1, measures: { us: { amount: 1, unitShort: 'q.b.' } } }
-      ],
-      istruzioni: '<p>1. Taglia il guanciale a listarelle e rosolalo in padella fino a farlo diventare croccante.</p><p>2. Cuoci gli spaghetti in abbondante acqua salata.</p><p>3. In una ciotola, sbatti i tuorli con il pecorino romano e un pizzico di pepe nero.</p><p>4. Scola la pasta al dente direttamente nella padella con il guanciale, spegni il fuoco e unisci il composto di uova e pecorino per creare la crema.</p>'
-    };
   }
 };
 
@@ -206,12 +186,12 @@ const caricaDaRoute = async () => {
   if (id && (!props.ricetta || Object.keys(props.ricetta).length === 0)) {
     await caricaDettagli(id);
   } else if (props.ricetta) {
-    ricettaData.value = {
+    ricettaData.value = normalizzaRicetta({
       ingredienti: [],
       istruzioni: '',
       categoria: '',
-      ...props.ricetta
-    };
+      ...(props.ricetta || {})
+    });
   }
 };
 
@@ -231,7 +211,6 @@ watch(() => route.params.id, (newId) => {
 .text-orange { color: #FF5E14; }
 .bg-orange { background-color: #FF5E14; }
 .bg-ingredients { background-color: #FBF9F4; }
-
 
 .header-image-zone {
   max-height: 400px;
@@ -253,7 +232,6 @@ watch(() => route.params.id, (newId) => {
   box-shadow: 0 4px 12px rgba(255, 94, 20, 0.3);
 }
 
-
 .btn-back {
   width: 46px;
   height: 46px;
@@ -271,32 +249,12 @@ watch(() => route.params.id, (newId) => {
   transform: scale(1.05);
 }
 
-
 .info-metric-card {
   transition: transform 0.2s ease;
 }
 .info-metric-card:hover {
   transform: translateY(-2px);
 }
-
-
-.section-title {
-  font-weight: 800;
-  color: #1C1C1C;
-  font-size: 1.5rem;
-  position: relative;
-}
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 40px;
-  height: 4px;
-  background-color: #FF5E14;
-  border-radius: 10px;
-}
-
 
 .ingredient-premium-row {
   transition: transform 0.2s ease, box-shadow 0.2s ease;

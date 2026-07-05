@@ -144,9 +144,9 @@
               <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
                 <div class="ratio ratio-4x3 position-relative">
                   <img 
-                    :src="ricetta.immagine || ricetta.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500'" 
+                    :src="ricetta.immagine || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500'" 
                     class="card-img-top object-fit-cover" 
-                    :alt="ricetta.titolo || ricetta.name || ricetta.title"
+                    :alt="ricetta.titolo"
                   />
                   <button
                     type="button"
@@ -173,7 +173,7 @@
                 </div>
                 <div class="card-body bg-white p-3 d-flex flex-column justify-content-between">
                   <h5 class="card-title fw-bold m-0 text-truncate" style="color: #2D3436; max-width: 100%;">
-                    {{ ricetta.titolo || ricetta.name || ricetta.title || 'Ricetta Speciale' }}
+                    {{ ricetta.titolo || 'Ricetta Speciale' }}
                   </h5>
                   <div class="d-flex justify-content-between align-items-center mt-3">
                     <small class="text-muted text-truncate" style="max-width: 60%;">Chef {{ ricetta.autore || ricetta.chef || 'Anonimo' }}</small>
@@ -273,13 +273,9 @@ const caricaRicette = async (query = '') => {
       return {
         id: r.id,
         titolo: r.title,
-        name: r.title,
-        title: r.title,
         immagine: r.image,
-        image: r.image,
         difficolta: r.readyInMinutes ? `${r.readyInMinutes} min` : 'Media',
         autore: r.sourceName || 'Chef Sconosciuto',
-        chef: r.sourceName || 'Chef Sconosciuto',
         sommarioBreve,
         categoria: r.cuisines?.[0] || 'varia',
         tempo: r.readyInMinutes || 30,
@@ -333,14 +329,14 @@ const salvaPreferiti = async () => {
 
 const normalizeRecipe = (recipe) => ({
   id: recipe.id,
-  title: recipe.title || recipe.titolo || recipe.name || 'Ricetta',
-  image: recipe.image || recipe.immagine || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500',
-  readyInMinutes: recipe.readyInMinutes || recipe.tempo || 0,
+  titolo: recipe.titolo || recipe.title || recipe.name || 'Ricetta',
+  immagine: recipe.immagine || recipe.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500',
+  tempo: recipe.tempo || recipe.readyInMinutes || 0,
   servings: recipe.servings || 0,
   dishTypes: recipe.dishTypes || [],
   summary: recipe.summary || '',
   category: recipe.category || recipe.categoria || '',
-  author: recipe.autore || recipe.chef || 'Anonimo'
+  autore: recipe.autore || recipe.chef || recipe.author || 'Anonimo'
 });
 
 const isPreferita = (ricetta) => preferitiIds.value.has(ricetta.id?.toString());

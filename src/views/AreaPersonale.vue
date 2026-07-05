@@ -263,8 +263,6 @@ const staSalvando = ref(false);
 const messaggioErrore = ref('');
 const messaggioSuccesso = ref('');
 
-
-
 const emailUtente = ref('');
 const nomeUtente = ref('');
 const nuovaPassword = ref('');
@@ -277,23 +275,13 @@ const datiModifica = ref({
   citta: ''
 });
 
-
-
 const confermaLogout = async () => {
   const risposta = confirm("Sei sicuro di voler uscire dal tuo account?");
   if (risposta) {
     try {
-      
-
       await signOut(auth);
-      
-      
-
       emit('logout');
-      
-      
-
-      router.push({ name: 'Login' }); 
+      router.push({ name: 'Login' });
 
     } catch (error) {
       console.error("Errore durante il logout:", error);
