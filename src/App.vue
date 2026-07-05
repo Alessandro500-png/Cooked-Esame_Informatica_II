@@ -22,13 +22,3 @@ const gestisciLogout = () => {
   datiUtente.value = null;
 };
 </script>
-
-<style>
-/* Stili globali per resettare i margini di tutta l'app */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background-color: #fafafa;
-}
-</style>
