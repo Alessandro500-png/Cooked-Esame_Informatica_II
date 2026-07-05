@@ -199,7 +199,7 @@
               
               <div class="ratio ratio-4x3 position-relative bg-light">
                 
-                <img :src="recipe.image" class="card-img-top object-fit-cover" :alt="`${recipe.title} - ricetta di ${recipe.author || recipe.chef || 'Chef Anonimo'}`" />
+                <img :src="recipe.image || recipe.immagine || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500'" class="card-img-top object-fit-cover" :alt="`${recipe.title || recipe.titolo || 'Ricetta'} - ricetta di ${recipe.author || recipe.chef || recipe.autore || 'Chef Anonimo'}`" />
                 
                 <button
                   class="btn btn-light btn-sm rounded-circle border shadow-sm position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center p-0 heart-btn"
@@ -227,13 +227,13 @@
               
               <div class="card-body bg-white p-3 d-flex flex-column justify-content-between">
                 
-                <h5 class="card-title fw-bold m-0 text-truncate text-dark">{{ recipe.title }}</h5>
+                <h5 class="card-title fw-bold m-0 text-truncate text-dark">{{ recipe.title || recipe.titolo || 'Ricetta' }}</h5>
                 
                 <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-                  <small class="text-muted text-truncate" style="min-width: 0;">Chef {{ recipe.author || recipe.chef || 'Anonimo' }}</small>
+                  <small class="text-muted text-truncate" style="min-width: 0;">Chef {{ recipe.author || recipe.chef || recipe.autore || 'Anonimo' }}</small>
                   
                   <span class="badge rounded-pill border px-2 py-1 small border-secondary text-dark">
-                    {{ recipe.readyInMinutes || recipe.time || 30 }} min
+                    {{ recipe.readyInMinutes || recipe.time || recipe.tempo || 30 }} min
                   </span>
                 </div>
               </div>

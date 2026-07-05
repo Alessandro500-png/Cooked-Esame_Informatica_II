@@ -195,6 +195,8 @@
   v-else-if="tabAttiva === 'risultati'" 
   :ricercaQuery="testoRicerca" 
   :categoriaQuery="categoriaAttiva" 
+  :isPreferita="isPreferita"
+  :togglePreferito="togglePreferito"
   @seleziona-ricetta="(ricetta) => mostraDettagli(ricetta)"
 />
         <AreaPersonale v-else-if="tabAttiva === 'profilo'" :utente="utente" @logout="$emit('logout')" />
@@ -330,13 +332,20 @@ const salvaPreferiti = async () => {
 const normalizeRecipe = (recipe) => ({
   id: recipe.id,
   titolo: recipe.titolo || recipe.title || recipe.name || 'Ricetta',
+  title: recipe.title || recipe.titolo || recipe.name || 'Ricetta',
   immagine: recipe.immagine || recipe.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500',
-  tempo: recipe.tempo || recipe.readyInMinutes || 0,
+  image: recipe.image || recipe.immagine || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500',
+  tempo: recipe.tempo || recipe.readyInMinutes || recipe.time || 0,
+  readyInMinutes: recipe.readyInMinutes || recipe.tempo || recipe.time || 0,
+  time: recipe.time || recipe.readyInMinutes || recipe.tempo || 0,
   servings: recipe.servings || 0,
   dishTypes: recipe.dishTypes || [],
   summary: recipe.summary || '',
   category: recipe.category || recipe.categoria || '',
-  autore: recipe.autore || recipe.chef || recipe.author || 'Anonimo'
+  categoria: recipe.categoria || recipe.category || '',
+  autore: recipe.autore || recipe.chef || recipe.author || 'Anonimo',
+  author: recipe.author || recipe.autore || recipe.chef || 'Anonimo',
+  chef: recipe.chef || recipe.autore || recipe.author || 'Anonimo'
 });
 
 const isPreferita = (ricetta) => preferitiIds.value.has(ricetta.id?.toString());

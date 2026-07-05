@@ -27,6 +27,30 @@
               class="w-100 h-100 object-fit-cover"
               :alt="ricetta.titolo || ricetta.title"
             />
+
+            <button
+              type="button"
+              class="btn btn-light btn-sm rounded-circle border shadow-sm position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center p-0 heart-btn"
+              @click.stop="togglePreferito(ricetta)"
+              :title="isPreferita(ricetta) ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'"
+              :aria-label="isPreferita(ricetta) ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="heart-icon"
+                :class="isPreferita(ricetta) ? 'heart-filled' : 'heart-outline'"
+              >
+                <path
+                  d="M12 20s-7-4.8-9.2-8.9C1 8.4 1.9 5.2 4.8 4.1c2.3-.8 4.5.2 6 2.1 1.5-1.9 3.7-2.9 6-2.1 2.9 1.1 3.8 4.3 2 7C19 15.2 12 20 12 20Z"
+                  :fill="isPreferita(ricetta) ? '#ff4d67' : 'none'"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
           </div>
 
           
@@ -55,7 +79,9 @@ import { collection, getDocs } from 'firebase/firestore';
 
 const props = defineProps({
   ricercaQuery: { type: String, default: '' },
-  categoriaQuery: { type: String, default: 'tutte' }
+  categoriaQuery: { type: String, default: 'tutte' },
+  isPreferita: { type: Function, required: true },
+  togglePreferito: { type: Function, required: true }
 });
 
 const emit = defineEmits(['seleziona-ricetta']);
@@ -131,6 +157,25 @@ const apriDettagli = (ricetta) => {
 .recipe-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+.heart-btn {
+  width: 38px;
+  height: 38px;
+}
+
+.heart-icon {
+  width: 18px;
+  height: 18px;
+  color: #2D3436;
+}
+
+.heart-filled {
+  color: #ff4d67;
+}
+
+.heart-outline {
+  color: #2D3436;
 }
 
 .animate-fade-in {
