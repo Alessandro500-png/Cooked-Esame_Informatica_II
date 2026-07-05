@@ -78,7 +78,7 @@
       </div>
     </header>
 
-    <!-- Commento: Container responsivo con padding dinamico per mobile-first -->
+    
     <div class="pt-5 mt-4">
       <main class="container-fluid py-3 py-md-4 px-2 px-sm-3 px-md-4">
         
@@ -88,16 +88,16 @@
             <p class="text-secondary fs-6">Scegli la tua ricetta preferita per dare inizio alla creatività</p>
           </div>
 
-          <!-- Commento: Box evidenza ricetta con layout responsive e gap dinamico -->
+          
           <div 
             v-if="!caricamentoInCorso && ricettaInEvidenza"
             class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 mb-md-5 text-white text-start overflow-hidden" 
             style="background-color: #27AE60; cursor: pointer;"
             @click="mostraDettagli(ricettaInEvidenza)"
           >
-            <!-- Commento: Row con gap responsivo per spacing dinamico -->
+            
             <div class="row align-items-center g-3 g-md-4">
-              <!-- Commento: Immagine responsive col-12 su mobile, col-md-5 su tablet -->
+              
               <div class="col-12 col-md-5 col-lg-4 d-flex align-items-center">
                 <div class="ratio ratio-4x3 rounded-3 overflow-hidden shadow-sm w-100">
                   <img 
@@ -107,17 +107,17 @@
                   />
                 </div>
               </div>
-              <!-- Spazio Testi -->
+              
               <div class="col-12 col-md-7 col-lg-8 d-flex flex-column justify-content-center">
                 <div>
-                  <!-- Scritta Gialla con alone/badge trasparente attorno -->
+                  
                   <span class="badge rounded-pill mb-2 px-3 py-2 fw-bold bg-white bg-opacity-10" style="color: #F1C40F; letter-spacing: 0.5px;">
                     RICETTA IN EVIDENZA
                   </span>
                   <h2 class="fw-bold mb-2 display-6">
                     {{ ricettaInEvidenza.titolo }}
                   </h2>
-                  <!-- Descrizione mantenuta pulita (senza incitazioni) -->
+                  
                   <p class="fs-5 opacity-90 mb-0">
                     {{ ricettaInEvidenza.sommarioBreve }} 
                   </p>
@@ -132,7 +132,7 @@
             </div>
           </div>
 
-          <!-- RIPRISTINATE TUTTE LE ALTRE RICETTE IN BASSO -->
+          
           <div v-else class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
             <div 
               class="col" 

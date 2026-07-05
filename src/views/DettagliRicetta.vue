@@ -1,16 +1,16 @@
 <template>
-  <!-- Commento: Container responsivo con padding dinamico per coerenza con altre pagine -->
+  
   <div class="container-fluid py-3 py-md-4 px-2 px-sm-3 px-md-4 position-relative">
     <transition name="fade-scale" mode="out-in">
-      <!-- Card principale con angoli super arrotondati (rounded-5) e ombra grande -->
+      
       <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white">
         
-        <!-- Immagine di Copertina con aspect-ratio nativo di Bootstrap (ratio-21x9) -->
+        
         <div class="ratio ratio-21x9 position-relative header-image-zone">
           <img :src="ricettaData.immagine || ricettaData.image || defaultImage" class="w-100 h-100 object-fit-cover" :alt="ricettaData.titolo || ricettaData.title" />
           <div class="image-gradient-overlay"></div>
 
-          <!-- Pulsante Indietro Circolare Premium - Alto a Sinistra con le utility di Bootstrap 5 -->
+          
           <div class="position-absolute top-0 start-0 m-4 z-3">
             <button 
               class="btn btn-back rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm" 
@@ -21,7 +21,7 @@
             </button>
           </div>
 
-          <!-- Badge Categoria Fluttuante - Alto a Destra con le utility di Bootstrap 5 -->
+          
           <div v-if="ricettaData.categoria" class="position-absolute top-0 end-0 m-4 z-2">
             <span class="badge category-floating-badge text-uppercase px-3 py-2 rounded-pill shadow-sm">
               🍳 {{ ricettaData.categoria }}
@@ -29,45 +29,45 @@
           </div>
         </div>
 
-        <!-- Commento: Body card con padding responsive p-3 p-md-4 per mobile-first -->
+        
         <div class="card-body p-3 p-md-4 p-lg-5">
-          <!-- Intestazione Ricetta -->
+          
           <div class="mb-4 pb-4 border-bottom border-light-subtle">
-            <h1 class="recipe-title m-0 text-antracite">{{ ricettaData.titolo || ricettaData.title }}</h1>
+            <h1 class="display-5 fw-bolder text-dark m-0 lh-1">{{ ricettaData.titolo || ricettaData.title }}</h1>
           </div>
 
-          <!-- Commento: Griglia info rapide con gap responsivo g-3 g-md-4 -->
+          
           <div class="row g-2 g-md-3 mb-4 mb-md-5 justify-content-center">
-            <!-- Commento: Card info tempo con padding responsivo -->
+            
             <div class="col-6 col-md-4">
               <div class="p-2 p-md-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">⏱</span>
-                <div class="fw-black text-dark fs-5 mt-1">{{ ricettaData.tempo || ricettaData.readyInMinutes || '—' }} min</div>
-                <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Preparazione</div>
+                <div class="fw-bolder text-dark fs-5 mt-1">{{ ricettaData.tempo || ricettaData.readyInMinutes || '—' }} min</div>
+                <div class="small text-muted text-uppercase fw-bold">Preparazione</div>
               </div>
             </div>
             <div class="col-6 col-md-4">
               <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">🍽</span>
-                <div class="fw-black text-dark fs-5 mt-1">1 Porzione</div>
-                <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Dosi di Base</div>
+                <div class="fw-bolder text-dark fs-5 mt-1">1 Porzione</div>
+                <div class="small text-muted text-uppercase fw-bold">Dosi di Base</div>
               </div>
             </div>
             <div class="col-12 col-md-4">
               <div class="p-3 rounded-4 text-center border border-light-subtle bg-body-tertiary info-metric-card">
                 <span class="fs-3">🔥</span>
-                <div class="fw-black text-dark fs-5 mt-1">{{ ricettaData.difficolta || ricettaData.difficulty || 'Media' }}</div>
-                <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Difficoltà</div>
+                <div class="fw-bolder text-dark fs-5 mt-1">{{ ricettaData.difficolta || ricettaData.difficulty || 'Media' }}</div>
+                <div class="small text-muted text-uppercase fw-bold">Difficoltà</div>
               </div>
             </div>
           </div>
 
-          <!-- Commento: Row principale con gap responsivo per ingredienti e preparazione -->
+          
           <div class="row g-3 g-md-4 g-lg-5">
-            <!-- Sezione Ingredienti (Grid di Card Interattive) -->
+            
             <div class="col-lg-5">
-              <div class="p-4 bg-ingredients rounded-5 h-100 border border-white shadow-sm">
-                <h3 class="section-title mb-4 pb-2">Ingredienti</h3>
+              <div class="p-4 bg-body-tertiary rounded-5 h-100 border border-light-subtle shadow-sm">
+                <h3 class="fw-bold text-dark mb-4 pb-2">Ingredienti</h3>
                 
                 <div class="d-flex flex-column gap-2">
                   <div 
@@ -91,10 +91,10 @@
               </div>
             </div>
 
-            <!-- Sezione Preparazione -->
+            
             <div class="col-lg-7">
-              <div class="p-4 rounded-5 h-100">
-                <h3 class="section-title mb-4 pb-2">Preparazione</h3>
+              <div class="p-4 rounded-5 h-100 bg-white">
+                <h3 class="fw-bold text-dark mb-4 pb-2">Preparazione</h3>
                 
                 <div class="mt-3 text-muted fs-6 line-height-relaxed" v-if="!ricettaData.istruzioni">
                   Le istruzioni dettagliate non sono disponibili per questa ricetta.
@@ -227,20 +227,12 @@ watch(() => route.params.id, (newId) => {
 </script>
 
 <style scoped>
-/* Colori custom basati sulla vostra palette */
-.text-antracite { color: #1C1C1C; }
+
 .text-orange { color: #FF5E14; }
 .bg-orange { background-color: #FF5E14; }
 .bg-ingredients { background-color: #FBF9F4; }
-.fw-black { font-weight: 900; }
 
-.recipe-title {
-  font-weight: 900;
-  letter-spacing: -1px;
-  font-size: 2.5rem;
-}
 
-/* Zone di design specifiche non coperte dalle utility standard di Bootstrap 5 */
 .header-image-zone {
   max-height: 400px;
 }
@@ -261,7 +253,7 @@ watch(() => route.params.id, (newId) => {
   box-shadow: 0 4px 12px rgba(255, 94, 20, 0.3);
 }
 
-/* Pulsante Indietro Circolare Premium Fluttuante */
+
 .btn-back {
   width: 46px;
   height: 46px;
@@ -279,7 +271,7 @@ watch(() => route.params.id, (newId) => {
   transform: scale(1.05);
 }
 
-/* Card Metriche Cucina (Animazione di hover leggera) */
+
 .info-metric-card {
   transition: transform 0.2s ease;
 }
@@ -287,7 +279,7 @@ watch(() => route.params.id, (newId) => {
   transform: translateY(-2px);
 }
 
-/* Titoli delle sezioni con indicatore di design sotto */
+
 .section-title {
   font-weight: 800;
   color: #1C1C1C;
@@ -305,7 +297,7 @@ watch(() => route.params.id, (newId) => {
   border-radius: 10px;
 }
 
-/* Effetto Hover Premium sulle righe degli ingredienti */
+
 .ingredient-premium-row {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -317,7 +309,7 @@ watch(() => route.params.id, (newId) => {
   background-color: rgba(255, 94, 20, 0.06);
 }
 
-/* Line-height e spaziatura editoriale per il blocco istruzioni v-html */
+
 .instructions-content {
   line-height: 1.8;
 }
@@ -333,7 +325,7 @@ watch(() => route.params.id, (newId) => {
   margin-bottom: 1.25rem;
 }
 
-/* Transition Vue per il caricamento */
+
 .fade-scale-enter-active, .fade-scale-leave-active {
   transition: opacity 280ms ease, transform 280ms ease;
 }
