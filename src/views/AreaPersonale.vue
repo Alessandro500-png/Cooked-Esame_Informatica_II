@@ -200,15 +200,28 @@
               <div class="ratio ratio-4x3 position-relative bg-light">
                 <!-- Commento: Immagine con alt text descrittivo per accessibilità -->
                 <img :src="recipe.image" class="card-img-top object-fit-cover" :alt="`${recipe.title} - ricetta di ${recipe.author || recipe.chef || 'Chef Anonimo'}`" />
-                <!-- Commento: Bottone rimuovi dai preferiti con aria-label esplicito -->
+                <!-- Commento: Bottone rimuovi dai preferiti con stile cuore pieno, uguale alla Home -->
                 <button
-                  class="btn position-absolute top-0 end-0 m-2 rounded-circle bg-white shadow-sm border-0 d-flex align-items-center justify-content-center"
-                  style="width: 36px; height: 36px; padding: 0;"
+                  class="btn btn-light btn-sm rounded-circle border shadow-sm position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center p-0 heart-btn"
                   type="button"
                   @click.stop="rimuoviPreferito(recipe.id)"
                   :aria-label="`Rimuovi ${recipe.title} dai preferiti`"
+                  title="Rimuovi dai preferiti"
                 >
-                  <i class="bi bi-heart-fill text-danger" aria-hidden="true"></i>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    class="favorite-heart-icon"
+                  >
+                    <path
+                      d="M12 20s-7-4.8-9.2-8.9C1 8.4 1.9 5.2 4.8 4.1c2.3-.8 4.5.2 6 2.1 1.5-1.9 3.7-2.9 6-2.1 2.9 1.1 3.8 4.3 2 7C19 15.2 12 20 12 20Z"
+                      fill="#ff4d67"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
                 </button>
               </div>
               <!-- Commento: Body card con info ricetta e flexbox per allineamento -->
@@ -413,6 +426,12 @@ onMounted(() => {
   width: 16px;
   height: 16px;
   color: #ff4d67;
+}
+
+.heart-btn {
+  width: 36px;
+  height: 36px;
+  background-color: #ffffff;
 }
 
 .recipe-card {
