@@ -8,7 +8,7 @@ Progetto finale sviluppato per l'esame di **Informatica II** presso l'**Universi
 - **Yannick David Hadzi**
 
 ##  Credenziali di Accesso Rapido (Test)
-Per facilitare la fase di correzione e valutazione da parte del docente, è stato predisposto un account di test già registrato e configurato nel database Firebase:
+Di seguito le credenziali per accedere a Cooked, account di test già registrato e configurato nel database Firebase:
 - **Email:** `noi@unitn.it`
 - **Password:** `654321`
 
