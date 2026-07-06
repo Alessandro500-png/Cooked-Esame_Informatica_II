@@ -7,9 +7,6 @@
       <span class="line-segment bg-yellow"></span>
     </div>
 
-    <div class="spice-ambient orange-glow position-absolute rounded-circle"></div>
-    <div class="spice-ambient yellow-glow position-absolute rounded-circle"></div>
-
     <div class="row w-100 justify-content-center position-relative z-3 px-2 px-sm-3">
       
       <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 auth-card bg-white rounded-4 py-4 py-sm-5 px-3 px-sm-4 px-md-5 shadow-sm border border-light-subtle">
@@ -53,10 +50,10 @@
                 type="button" 
                 class="btn btn-link btn-sm text-decoration-none text-muted fw-semibold p-0 minimal-toggle"
                 @click="mostraPassword = !mostraPassword"
-                :aria-pressed="mostraPassword"
-                aria-controls="password"
+                 :aria-pressed="mostraPassword" 
+                aria-controls="password" 
               >
-                
+              
                 {{ mostraPassword ? 'Nascondi' : 'Mostra' }}
               </button>
             </div>
